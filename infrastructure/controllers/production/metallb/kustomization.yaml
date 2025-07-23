@@ -5,5 +5,5 @@ resources:
   - repository.yaml
   - configmap.yaml
   - release.yaml
-  - ipaddresspool.yaml
-  - l2advertisement.yaml
+  # - ipaddresspool.yaml
+  # - l2advertisement.yaml
