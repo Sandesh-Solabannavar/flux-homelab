@@ -6,4 +6,4 @@ resources:
   - cloudnativepg
   - external-secrets
   - local-path
-  - capacitor
+  # - capacitor
