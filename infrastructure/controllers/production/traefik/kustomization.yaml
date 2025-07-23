@@ -5,5 +5,4 @@ metadata:
   namespace: flux-system
 resources:
   - helm-repository.yaml
-  - traefik-values-configmap.yaml
   - helm-release.yaml
