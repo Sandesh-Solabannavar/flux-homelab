@@ -53,7 +53,7 @@ data:
       enabled: true
 
     service:
-      enabled: true
+      enabled: false
       type: LoadBalancer
       annotations: {}
       labels: {}
