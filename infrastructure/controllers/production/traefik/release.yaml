@@ -17,5 +17,7 @@ spec:
         kind: HelmRepository
         name: traefik
         namespace: flux-system
-  valuesFiles:
-    - values.yaml
+  valuesFrom:
+    - kind: ConfigMap
+      name: traefik-values
+      valuesKey: values.yaml # defaults to this if omitted
