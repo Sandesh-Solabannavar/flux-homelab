@@ -53,6 +53,6 @@ spec:
             - mountPath: /app/config/logs
               name: logs
       volumes:
-        - name: config
+        - name: homepage-config
           configMap:
             name: homepage-config
