@@ -51,10 +51,9 @@ data:
         label: System
         cpu: true
         memory: true
-
-    - resources:
-        label: Storage
-        disk: /mnt/storage
+        disk: /sda
+        cputemp: true
+        uptime: true
         
     - search:
         provider: google
@@ -76,4 +75,4 @@ data:
   docker.yaml: ""
 
   kubernetes.yaml: |
-    mode: cluster
+    mode: default
