@@ -51,8 +51,8 @@ data:
 
   bookmarks.yaml: |
     - Dev:
-        - GitHub:
-            href: https://github.com/Sandesh-Solabannavar
+      - GitHub:
+          href: https://github.com/Sandesh-Solabannavar
 
   widgets.yaml: |
     - resources:
