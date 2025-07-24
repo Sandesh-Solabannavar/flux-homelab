@@ -51,7 +51,7 @@ data:
         label: System
         cpu: true
         memory: true
-        disk: /sda
+        disk: /
         cputemp: true
         uptime: true
         
