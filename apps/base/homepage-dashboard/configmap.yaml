@@ -21,29 +21,29 @@ data:
             href: http://grafana.isandeshsol.com
             icon: grafana.png
 
-    - Consuming:
-      - Hacker News:
-            href: https://news.ycombinator.com/
-            icon: hacker-news.png
-      - YouTube:
-            href: https://youtube.com
-            icon: youtube.png
+      - Consuming:
+        - Hacker News:
+              href: https://news.ycombinator.com/
+              icon: hacker-news.png
+        - YouTube:
+              href: https://youtube.com
+              icon: youtube.png
 
-    - Creating:
-      - X:
-            href: https://x.com
-            icon: x.png
-      - LinkedIn:
-            href: https://linkedin.com
-            icon: linkedin.png
+      - Creating:
+        - X:
+              href: https://x.com
+              icon: x.png
+        - LinkedIn:
+              href: https://linkedin.com
+              icon: linkedin.png
 
-    - Misc:
-      - N8n:
-            href: https://workflow.isandeshsol.com
-            icon: n8n.png
-      - Claude:
-            href: https://claude.ai/new
-            icon: mdi-robot-excited-outline-#DE7552
+      - Misc:
+        - N8n:
+              href: https://workflow.isandeshsol.com
+              icon: n8n.png
+        - Claude:
+              href: https://claude.ai/new
+              icon: mdi-robot-excited-outline-#DE7552
 
   bookmarks.yaml: ""
 
