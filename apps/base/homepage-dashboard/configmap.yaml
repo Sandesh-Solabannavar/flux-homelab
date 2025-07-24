@@ -9,7 +9,6 @@ data:
     theme: dark
     layout:
       - Monitoring
-      - Media
 
   services.yaml: |
     - Monitoring:
@@ -30,7 +29,4 @@ data:
         disk: /
 
   docker.yaml: |
-    # leave empty or configure if using Docker integration
-    # example:
-    #   - name: docker
-    #     url: http://localhost:2375
+    # Optional
