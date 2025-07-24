@@ -4,6 +4,7 @@ resources:
   - namespace.yaml
   - configmap-env.yaml
   - config-secret.yaml
+  - secrets.yaml
   # - configmap.yaml
   - deployment.yaml
   - service.yaml
