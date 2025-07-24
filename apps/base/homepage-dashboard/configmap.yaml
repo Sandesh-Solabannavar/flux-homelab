@@ -6,13 +6,7 @@ metadata:
 data:
   custom.js: ""
   custom.css: ""
-  settings.yaml: |
-    title: My Awesome Homepage
-    description: A description of my awesome homepage
-    layout:
-      Media:
-        style: row
-        columns: 4
+  settings.yaml: ""
 
   services.yaml: |
     - Homelab:
@@ -26,9 +20,36 @@ data:
           href: http://grafana.isandeshsol.com
           icon: grafana.png
 
+    - Consuming:
+      - Hacker News:
+          href: https://news.ycombinator.com/
+          icon: hacker-news.png
+      - YouTube:
+          href: https://youtube.com
+          icon: youtube.png
+
+    - Creating:
+      - X:
+          href: https://x.com
+          icon: x.png
+      - LinkedIn:
+          href: https://linkedin.com
+          icon: linkedin.png
+
+    - Misc:
+      - N8n:
+          href: https://workflow.isandeshsol.com
+          icon: n8n.png
+      - Claude:
+          href: https://claude.ai/new
+          icon: mdi-robot-excited-outline-#DE7552
+
   bookmarks.yaml: ""
 
-  widgets.yaml: ""
+  widgets.yaml: |
+    - search:
+        provider: google
+        target: _blank
 
   docker.yaml: ""
 
