@@ -11,39 +11,39 @@ data:
   services.yaml: |
     - Homelab:
       - Pi-hole:
-            href: http://192.168.1.11:3009/admin
-            icon: pi-hole.png
-            widget:
-                type: pihole
-                url: http://192.168.1.11:3009
-                key: {{ .piholekey }}
+          href: http://192.168.1.11:3009/admin
+          icon: pi-hole.png
+          widget:
+            type: pihole
+            url: http://192.168.1.11:3009
+            key: "{{ .piholekey }}"
       - Grafana:
-            href: http://grafana.isandeshsol.com
-            icon: grafana.png
+          href: http://grafana.isandeshsol.com
+          icon: grafana.png
 
-      - Consuming:
-        - Hacker News:
-              href: https://news.ycombinator.com/
-              icon: hacker-news.png
-        - YouTube:
-              href: https://youtube.com
-              icon: youtube.png
+    - Consuming:
+      - Hacker News:
+          href: https://news.ycombinator.com/
+          icon: hacker-news.png
+      - YouTube:
+          href: https://youtube.com
+          icon: youtube.png
 
-      - Creating:
-        - X:
-              href: https://x.com
-              icon: x.png
-        - LinkedIn:
-              href: https://linkedin.com
-              icon: linkedin.png
+    - Creating:
+      - X:
+          href: https://x.com
+          icon: x.png
+      - LinkedIn:
+          href: https://linkedin.com
+          icon: linkedin.png
 
-      - Misc:
-        - N8n:
-              href: https://workflow.isandeshsol.com
-              icon: n8n.png
-        - Claude:
-              href: https://claude.ai/new
-              icon: mdi-robot-excited-outline-#DE7552
+    - Misc:
+      - N8n:
+          href: https://workflow.isandeshsol.com
+          icon: n8n.png
+      - Claude:
+          href: https://claude.ai/new
+          icon: mdi-robot-excited-outline-#DE7552
 
   bookmarks.yaml: ""
 
@@ -53,6 +53,7 @@ data:
         memory: true
         disk: /
         cputemp: true
+        uptime: true
         
     - search:
         provider: google
