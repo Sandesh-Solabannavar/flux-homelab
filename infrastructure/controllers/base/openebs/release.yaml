@@ -1,0 +1,64 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: openebs
+  namespace: openebs
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: openebs
+      version: 4.3.2
+      sourceRef:
+        kind: HelmRepository
+        name: openebs
+        namespace: flux-system
+  install:
+    createNamespace: true
+  values:
+    apiServer:
+      enabled: false # Disable REST API
+    agentCore:
+      enabled: false # Disable agent core
+    # values.yaml - Minimal config for RPi
+    # Disable ALL components except LocalPV Hostpath
+
+    # Disable legacy components
+    ndm:
+      enabled: false
+    ndmOperator:
+      enabled: false
+    cstor:
+      enabled: false
+    jiva:
+      enabled: false
+    zfs-localpv:
+      enabled: false
+
+    # Disable v4.x components
+    engines:
+      replicated:
+        mayastor:
+          enabled: false # Disable Mayastor
+      local:
+        hostpath:
+          enabled: true # Keep ONLY Hostpath
+        lvm:
+          enabled: false # Disable LVM
+        zfs:
+          enabled: false # Disable ZFS
+
+    # Disable monitoring stack
+    observability:
+      enabled: false # Disable Loki/Promtail
+
+    # Disable etcd and NATS
+    etcd:
+      enabled: false
+    nats:
+      enabled: false
+
+    # LocalPV Hostpath config
+    localprovisioner:
+      enabled: true
+      basePath: /var/openebs/local
