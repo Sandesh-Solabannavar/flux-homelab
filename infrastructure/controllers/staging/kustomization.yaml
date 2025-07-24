@@ -5,4 +5,4 @@ resources:
   - metallb
   - cloudnativepg
   - external-secrets
-  - longhorn
+  - openebs
