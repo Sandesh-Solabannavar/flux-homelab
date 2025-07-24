@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homepage-config
+  namespace: homepage
+data:
+  settings.yaml: |
+    title: My Homepage
+    theme: dark
+    layout:
+      - Monitoring
+      - Media
+
+  services.yaml: |
+    - Monitoring:
+        - Grafana:
+            icon: grafana
+            href: http://grafana.local
+            description: Dashboards
+
+  bookmarks.yaml: |
+    - Dev:
+        - GitHub:
+            href: https://github.com
+
+  widgets.yaml: |
+    - resources:
+        cpu: true
+        memory: true
+        disk: /
+
+  docker.yaml: |
+    # leave empty or configure if using Docker integration
+    # example:
+    #   - name: docker
+    #     url: http://localhost:2375
