@@ -6,59 +6,14 @@ metadata:
 data:
   custom.js: ""
   custom.css: ""
-  settings.yaml: |
-    title: My Homepage
-    theme: dark
-    layout:
-      - Monitoring
+  settings.yaml: ""
 
-  services.yaml: |
-    - Homelab:
-      - Pi-hole:
-          href: "http://192.168.1.11:3009/admin"
-          icon: pi-hole.png
-          widget:
-              type: pihole
-              url: "http://192.168.1.11:3009"
-      - Grafana:
-          href: http://grafana.isandeshsol.com
-          icon: grafana.png
+  services.yaml: ""
 
+  bookmarks.yaml: ""
 
-    - Consuming:
-      - Hacker News:
-          href: https://news.ycombinator.com/
-          icon: commafeed.png
-      - YouTube:
-          href: https://youtube.com
-          icon: youtube.png
+  widgets.yaml: ""
 
-    - Creating:
-      - X:
-          href: https://x.com
-          icon: x.png
-      - LinkedIn:
-          href: https://linkedin.com
-          icon: linkedin.png
+  docker.yaml: ""
 
-    - Misc:
-      - N8n:
-          href: https://workflow.isandeshsol.com
-          icon: n8n.png
-      - Claude:
-          href: https://claude.ai/new
-          icon: mdi-robot-excited-outline-#DE7552
-
-  bookmarks.yaml: |
-    - Dev:
-      - GitHub:
-          href: https://github.com/Sandesh-Solabannavar
-
-  widgets.yaml: |
-    - resources:
-        cpu: true
-        memory: true
-        disk: /
-
-  docker.yaml: |
-    # Optional
+  kubernetes.yaml: ""
