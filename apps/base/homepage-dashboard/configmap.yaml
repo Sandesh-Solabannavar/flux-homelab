@@ -6,14 +6,17 @@ metadata:
 data:
   custom.js: ""
   custom.css: ""
-  settings.yaml: ""
+  settings.yaml: |
+    title: My Homepage
+    theme: dark
+    layout:
+      - Monitoring
 
-  services.yaml: ""
+  services.yaml: |
 
-  bookmarks.yaml: ""
+  bookmarks.yaml: |
 
-  widgets.yaml: ""
+  widgets.yaml: |
 
-  docker.yaml: ""
-
-  kubernetes.yaml: ""
+  docker.yaml: |
+    # Optional
