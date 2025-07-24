@@ -58,6 +58,6 @@ spec:
       volumes:
         - name: homepage-config
           secret:
-            secretName: homepage-config-secret
+            secretName: homepage-config
         - name: logs
           emptyDir: {}
