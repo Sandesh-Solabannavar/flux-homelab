@@ -3,4 +3,4 @@ kind: Kustomization
 resources:
   - metallb
   - traefik
-  - external-secrets
+  # - external-secrets
