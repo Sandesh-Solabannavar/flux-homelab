@@ -3,6 +3,7 @@ kind: Kustomization
 namespace: homepage
 resources:
   - config-secret-azure.yaml
+  - configmap-env.yaml
   - ../../base/homepage-dashboard
   # - cloudflare.yaml
   # - ingress.yaml
