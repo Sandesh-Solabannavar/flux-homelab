@@ -3,4 +3,4 @@ kind: Kustomization
 resources:
   - podinfo
   - nginx
-  - homepage-dashboard
+  # - homepage-dashboard
