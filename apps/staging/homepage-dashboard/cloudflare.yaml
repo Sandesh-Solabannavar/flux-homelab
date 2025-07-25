@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: cloudflared
-          image: cloudflare/cloudflared:2025.2.1
+          image: cloudflare/cloudflared:latest
           args:
             - tunnel
             - --config
@@ -78,10 +78,10 @@ data:
     no-autoupdate: true
 
     ingress:
-    - hostname: homepage-stg.isandeshsol.com
+    - hostname: homepage-stg.sandeshsolabannavar.com
       service: http://homepage:80
 
-    - hostname: hello.isandeshsol.com
+    - hostname: hello.sandeshsolabannavar.com
       service: hello_world
 
     # This rule matches any traffic which didn't match a previous rule, and responds with HTTP 404.

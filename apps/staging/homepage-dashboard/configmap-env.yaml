@@ -4,4 +4,4 @@ metadata:
   name: homepage-env-configmap
   namespace: homepage
 data:
-  HOMEPAGE_ALLOWED_HOSTS: "localhost:56894"
+  HOMEPAGE_ALLOWED_HOSTS: "homepage-stg.sandeshsolabannavar.com"
