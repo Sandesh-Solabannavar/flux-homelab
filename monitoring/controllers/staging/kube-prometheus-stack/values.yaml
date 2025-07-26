@@ -124,9 +124,10 @@ grafana:
   persistence:
     enabled: true
     type: pvc
+    storageClassName: openebs-hostpath
     accessModes:
       - ReadWriteOnce
-    size: 4Gi
+    size: 1Gi
 
   # Allow Omni Workload Proxying for this service
   service:
