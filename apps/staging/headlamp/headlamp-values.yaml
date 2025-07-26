@@ -4,9 +4,6 @@ metadata:
   name: headlamp
   namespace: headlamp
 spec:
-  chart:
-    spec:
-      version: ">=1.0.0"
   values:
     ingress:
       hosts:
