@@ -1,0 +1,16 @@
+2apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: headlamp
+  namespace: headlamp
+spec:
+  chart:
+    spec:
+      version: ">=1.0.0"
+  values:
+    ingress:
+      hosts:
+        - host: headlamp-stg.sandeshsolabannavar.com
+          paths:
+            - path: /
+              pathType: ImplementationSpecific

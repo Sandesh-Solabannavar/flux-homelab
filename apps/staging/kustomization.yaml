@@ -4,3 +4,4 @@ resources:
   - podinfo
   - nginx
   - homepage-dashboard
+  - headlamp
