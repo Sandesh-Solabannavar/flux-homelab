@@ -124,7 +124,6 @@ grafana:
   persistence:
     enabled: true
     type: pvc
-    storageClassName: openebs-hostpath
     accessModes:
       - ReadWriteOnce
     size: 4Gi
