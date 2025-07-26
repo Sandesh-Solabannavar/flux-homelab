@@ -10,8 +10,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: headlamp
-      version: "*"
-  interval: 1m0s
+  interval: 50m0s
   values:
     ingress:
       enabled: true
