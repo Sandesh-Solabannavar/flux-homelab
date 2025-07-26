@@ -10,4 +10,4 @@ spec:
         - host: headlamp-stg.sandeshsolabannavar.com
           paths:
             - path: /
-              pathType: ImplementationSpecific
+              type: ImplementationSpecific
