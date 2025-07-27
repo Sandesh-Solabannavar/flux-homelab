@@ -2,6 +2,7 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: commafeed-db-staging-cnpg-v1
+  namespace: commafeed
 spec:
   description: Postgres cluster for the commafeed application
   imageName: quay.io/enterprisedb/postgresql:16.1
