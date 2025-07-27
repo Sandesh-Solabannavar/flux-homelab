@@ -4,4 +4,4 @@ namespace: commafeed
 resources:
   - database.yaml
   # - secrets.yaml
-  # - ../../base/commafeed
+  - ../../base/commafeed
