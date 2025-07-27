@@ -37,25 +37,12 @@ spec:
               cpu: "500m"
               memory: "512Mi"
 
-          env:
-            - name: CF_DATABASE_USER
-              valueFrom:
-              secretKeyRef:
-                name: commafeed-db-staging-cnpg-v1-app
-                key: user
-            - name: CF_DATABASE_PASSWORD
-              valueFrom:
-              secretKeyRef:
-                name: commafeed-db-staging-cnpg-v1-app
-                key: password
-            - name: CF_APP_PUBLICURL
-              value: "https://commafeed-stg.sandeshsolabannavar.com"
-            - name: CF_DATABASE_DRIVERCLASS
-              value: "org.postgresql.Driver"
-            - name: CF_DATABASE_URL
-              secretKeyRef:
-                name: commafeed-db-staging-cnpg-v1-app
-                key: jdbc-uri
+          envFrom:
+            - configMapRef:
+                name: commafeed-configmap
+            - secretRef:
+                name: commafeed-container-env
+
           ports:
             - containerPort: 8082
               protocol: TCP

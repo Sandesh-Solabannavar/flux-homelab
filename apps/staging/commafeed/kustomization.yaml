@@ -3,5 +3,8 @@ kind: Kustomization
 namespace: commafeed
 resources:
   - database.yaml
+  - secrets.yaml
+  - configmap.yaml
   # - secrets.yaml
   - ../../base/commafeed
+  - cloudflare.yaml
