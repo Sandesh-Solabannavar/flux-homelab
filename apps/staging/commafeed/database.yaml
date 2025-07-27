@@ -1,0 +1,24 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: commafeed-db-staging-cnpg-v1
+spec:
+  description: Postgres cluster for the commafeed application
+  imageName: quay.io/enterprisedb/postgresql:16.1
+  instances: 3
+
+  monitoring:
+    enablePodMonitor: true
+
+  inheritedMetadata:
+    labels:
+      app: commafeed-database
+      policy-type: "database"
+
+  storage:
+    size: 1Gi
+
+  # handy: resources can be used to trigger a redeploy
+  resources:
+    requests:
+      memory: 600Mi
