@@ -5,3 +5,4 @@ resources:
   - nginx
   - homepage-dashboard
   - headlamp
+  - commafeed
