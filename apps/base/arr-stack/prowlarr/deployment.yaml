@@ -1,65 +1,60 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: prowlarr-vpn
+  name: prowlarr
   namespace: arr-stack
   labels:
-    app: prowlarr-vpn
+    app: prowlarr
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: prowlarr-vpn
+      app: prowlarr
   template:
     metadata:
       labels:
-        app: prowlarr-vpn
+        app: prowlarr
     spec:
       containers:
-        - name: prowlarr-vpn
-          image: binhex/arch-prowlarr
+        - name: gluetun
+          image: qmcgaw/gluetun
+          imagePullPolicy: Always
           securityContext:
             capabilities:
               add:
                 - NET_ADMIN
-          resources:
-            requests:
-              memory: "256Mi"
-              cpu: "100m"
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
           env:
-            - name: VPN_ENABLED
-              value: "yes"
-            - name: VPN_PROV
-              value: "privado"
-            - name: VPN_USER
-              valueFrom:
-                secretKeyRef:
-                  name: gluetun-env
-                  key: OPENVPN_USER
-            - name: VPN_PASS
-              valueFrom:
-                secretKeyRef:
-                  name: gluetun-env
-                  key: OPENVPN_PASSWORD
             - name: TZ
               value: "Asia/Kolkata"
-            - name: UMASK
-              value: "002"
-            - name: DEBUG
-              value: "false"
-            - name: DOT
-              value: "off"
-            - name: DNS
-              value: "1.1.1.1,8.8.8.8"
-            - name: LAN_NETWORK
-              value: "10.42.0.0/16,192.168.1.0/24"
-            - name: VPN_DISABLE_IPV6
-              value: "yes"
+          envFrom:
+            - secretRef:
+                name: gluetun-env
+          ports:
+            - containerPort: 8888 # optional: Gluetun's HTTP control server
+            - containerPort: 9696 # if routing via Gluetun and exposing
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+        - name: prowlarr
+          image: lscr.io/linuxserver/prowlarr:latest
+          imagePullPolicy: Always
+          env:
+            - name: TZ
+              value: "Asia/Kolkata"
           ports:
             - containerPort: 9696
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
           volumeMounts:
             - name: config
               mountPath: /config
@@ -67,3 +62,6 @@ spec:
         - name: config
           persistentVolumeClaim:
             claimName: prowlarr-config-pvc
+          # 🧠 Use gluetun's network namespace by not setting your own
+          # Optional: add health/liveness probes if needed
+      restartPolicy: Always
