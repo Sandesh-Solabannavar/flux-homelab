@@ -33,10 +33,7 @@ spec:
             - name: VPN_ENABLED
               value: "yes"
             - name: VPN_PROV
-              valueFrom:
-                secretKeyRef:
-                  name: gluetun-env
-                  key: VPN_SERVICE_PROVIDER
+              value: "privado"
             - name: VPN_USER
               valueFrom:
                 secretKeyRef:
