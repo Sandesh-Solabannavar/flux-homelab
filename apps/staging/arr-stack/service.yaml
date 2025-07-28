@@ -8,8 +8,8 @@ spec:
   selector:
     app: prowlarr
   ports:
-    - name: http
-      targetPort: 9696
-      port: 9696
+    - port: 9697
+      targetPort: 9697
+  type: ClusterIP
 ---
 

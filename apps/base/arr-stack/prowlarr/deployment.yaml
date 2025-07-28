@@ -65,10 +65,9 @@ spec:
               memory: "128Mi"
         - name: prowlarr
           image: lscr.io/linuxserver/prowlarr:latest
-          imagePullPolicy: Always
           ports:
-            - containerPort: 9696
-              protocol: TCP
+            - containerPort: 9697
+          imagePullPolicy: Always
           resources:
             requests:
               cpu: "100m"
