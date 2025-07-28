@@ -1,26 +1,22 @@
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gluetun-deployment
+  name: prowlarr
   namespace: arr-stack
   labels:
-    app: gluetun
+    app: prowlarr
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: gluetun
+      app: prowlarr
   template:
     metadata:
       labels:
-        app: gluetun
+        app: prowlarr
     spec:
-      initContainers:
+      containers:
         - name: gluetun
-          # if you do not add restartPolicy the other init containers will never start
-          # it will be an initContainer and not a native sidecar container https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers/
-          restartPolicy: Always
           image: qmcgaw/gluetun
           imagePullPolicy: Always
           securityContext:
@@ -33,12 +29,9 @@ spec:
           envFrom:
             - secretRef:
                 name: gluetun-env
-      containers:
-        - name: prowlarr
-          image: lscr.io/linuxserver/prowlarr:latest
           ports:
-            - containerPort: 9697
-          imagePullPolicy: Always
+            - containerPort: 8888 # optional: Gluetun's HTTP control server
+            - containerPort: 9696 # if routing via Gluetun and exposing
           resources:
             requests:
               cpu: "100m"
@@ -46,3 +39,22 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
+        - name: prowlarr
+          image: lscr.io/linuxserver/prowlarr:latest
+          imagePullPolicy: Always
+          env:
+            - name: TZ
+              value: "Asia/Kolkata"
+          ports:
+            - containerPort: 9696
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          # 🧠 Use gluetun's network namespace by not setting your own
+          # Optional: add health/liveness probes if needed
+      restartPolicy: Always
