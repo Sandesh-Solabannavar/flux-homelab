@@ -1,60 +1,64 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: prowlarr
+  name: prowlarr-vpn
   namespace: arr-stack
   labels:
-    app: prowlarr
+    app: prowlarr-vpn
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: prowlarr
+      app: prowlarr-vpn
   template:
     metadata:
       labels:
-        app: prowlarr
+        app: prowlarr-vpn
     spec:
       containers:
-        - name: gluetun
-          image: qmcgaw/gluetun
-          imagePullPolicy: Always
+        - name: prowlarr-vpn
+          image: binhex/arch-prowlarr
           securityContext:
             capabilities:
               add:
                 - NET_ADMIN
-          env:
-            - name: TZ
-              value: "Asia/Kolkata"
-          envFrom:
-            - secretRef:
-                name: gluetun-env
-          ports:
-            - containerPort: 8888 # optional: Gluetun's HTTP control server
-            - containerPort: 9696 # if routing via Gluetun and exposing
           resources:
             requests:
+              memory: "256Mi"
               cpu: "100m"
-              memory: "128Mi"
             limits:
-              cpu: "500m"
               memory: "512Mi"
-        - name: prowlarr
-          image: lscr.io/linuxserver/prowlarr:latest
-          imagePullPolicy: Always
+              cpu: "500m"
           env:
+            - name: VPN_ENABLED
+              value: "yes"
+            - name: VPN_PROV
+              valueFrom:
+                secretKeyRef:
+                  name: gluetun-env
+                  key: VPN_SERVICE_PROVIDER
+            - name: VPN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: gluetun-env
+                  key: OPENVPN_USER
+            - name: VPN_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: gluetun-env
+                  key: OPENVPN_PASSWORD
             - name: TZ
               value: "Asia/Kolkata"
+            - name: UMASK
+              value: "002"
+            - name: DEBUG
+              value: "false"
           ports:
             - containerPort: 9696
-              protocol: TCP
-          resources:
-            requests:
-              cpu: "100m"
-              memory: "128Mi"
-            limits:
-              cpu: "500m"
-              memory: "512Mi"
-          # 🧠 Use gluetun's network namespace by not setting your own
-          # Optional: add health/liveness probes if needed
-      restartPolicy: Always
+          volumeMounts:
+            - name: config
+              mountPath: /config
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: prowlarr-config-pvc

@@ -3,4 +3,5 @@ kind: Kustomization
 namespace: arr-stack
 resources:
   - secret.yaml
+  - pvc.yaml
   - deployment.yaml
