@@ -14,5 +14,3 @@ spec:
   values:
     env:
       TZ: "Asia/Kolkata"
-    metrics:
-      enabled: true
