@@ -1,0 +1,9 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: radarr
+  namespace: arr-stack
+spec:
+  interval: 10h0s
+  timeout: 1m0s
+  url: https://charts.pree.dev

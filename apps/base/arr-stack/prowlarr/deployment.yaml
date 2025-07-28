@@ -1,0 +1,78 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gluetun-deployment
+  namespace: arr-stack
+  labels:
+    app: gluetun
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gluetun
+  template:
+    metadata:
+      labels:
+        app: gluetun
+    spec:
+      initContainers:
+        - name: gluetun
+          # if you do not add restartPolicy the other init containers will never start
+          # it will be an initContainer and not a native sidecar container https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers/
+          restartPolicy: Always
+          image: qmcgaw/gluetun
+          imagePullPolicy: Always
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+          env:
+            - name: TZ
+              value: "Asia/Kolkata"
+          envFrom:
+            - secretRef:
+                name: gluetun-env
+        - name: curlpodtest
+          image: curlimages/curl
+          command: ["/bin/sh", "-c"]
+          args:
+            - &check-ip |
+              IP=$(curl -s checkip.amazonaws.com)
+              EXPECTED_IP="YOUR_IP_ADDRESS"
+              if [ "$IP" != "$EXPECTED_IP" ]; then
+                echo "IP is different from $EXPECTED_IP. Current IP is $IP."
+              else
+                echo "IP is $EXPECTED_IP. Exiting..."
+                exit 1
+              fi
+      containers:
+        # Run whatever you want to ensure is going out the tunnel here
+        - name: curlpod
+          image: curlimages/curl
+          args:
+            - /bin/sh
+            - -c
+            - while true; do curl checkip.amazonaws.com; sleep 15;
+              done
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "100m"
+              memory: "128Mi"
+        - name: prowlarr
+          image: lscr.io/linuxserver/prowlarr:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9696
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
