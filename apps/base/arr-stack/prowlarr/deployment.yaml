@@ -53,6 +53,14 @@ spec:
               value: "002"
             - name: DEBUG
               value: "false"
+            - name: DOT
+              value: "off"
+            - name: DNS
+              value: "1.1.1.1,8.8.8.8"
+            - name: LAN_NETWORK
+              value: "10.42.0.0/16,192.168.1.0/24"
+            - name: VPN_DISABLE_IPV6
+              value: "yes"
           ports:
             - containerPort: 9696
           volumeMounts:
