@@ -22,7 +22,7 @@ spec:
           securityContext:
             capabilities:
               add:
-                - NET_ADMIN
+                - "NET_ADMIN"
           env:
             - name: TZ
               value: "Asia/Kolkata"
@@ -40,7 +40,7 @@ spec:
               cpu: "500m"
               memory: "512Mi"
         - name: prowlarr
-          image: lscr.io/linuxserver/prowlarr:latest
+          image: bitlessbyte/prowlarr:latest
           imagePullPolicy: Always
           env:
             - name: TZ
