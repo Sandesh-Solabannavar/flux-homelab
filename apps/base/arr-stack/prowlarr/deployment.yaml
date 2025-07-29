@@ -40,7 +40,7 @@ spec:
               cpu: "500m"
               memory: "512Mi"
         - name: prowlarr
-          image: spritsail/prowlar
+          image: lscr.io/linuxserver/prowlarr:latest
           imagePullPolicy: Always
           env:
             - name: TZ
