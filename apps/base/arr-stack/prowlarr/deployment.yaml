@@ -24,8 +24,6 @@ spec:
               add:
                 - "NET_ADMIN"
           env:
-            - name: TZ
-              value: "Asia/Kolkata"
             - name: VPN_SERVICE_PROVIDER
               value: privado
             - name: VPN_TYPE
@@ -52,9 +50,18 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
+          healthcheck:
+            test: ping -c 1 www.google.com || exit 1
+            interval: 20s
+            timeout: 10s
+            retries: 5
         - name: prowlarr
           image: lscr.io/linuxserver/prowlarr:latest
           imagePullPolicy: Always
+          depends_on:
+            gluetun:
+              condition: service_healthy
+              restart: true
           env:
             - name: TZ
               value: "Asia/Kolkata"
