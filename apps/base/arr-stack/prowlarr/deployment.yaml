@@ -26,9 +26,22 @@ spec:
           env:
             - name: TZ
               value: "Asia/Kolkata"
-          envFrom:
-            - secretRef:
-                name: gluetun-env
+            - name: VPN_SERVICE_PROVIDER
+              value: privado
+            - name: VPN_TYPE
+              value: openvpn
+            - name: SERVER_COUNTRIES
+              value: United States
+            - name: OPENVPN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: gluetun-env
+                  key: OPENVPN_USER
+            - name: OPENVPN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: gluetun-env
+                  key: OPENVPN_PASSWORD
           ports:
             - containerPort: 8888 # optional: Gluetun's HTTP control server
             - containerPort: 9696 # if routing via Gluetun and exposing
