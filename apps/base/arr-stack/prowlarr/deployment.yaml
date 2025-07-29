@@ -40,7 +40,7 @@ spec:
               cpu: "500m"
               memory: "512Mi"
         - name: prowlarr
-          image: bitlessbyte/prowlarr:latest
+          image: spritsail/prowlar
           imagePullPolicy: Always
           env:
             - name: TZ
