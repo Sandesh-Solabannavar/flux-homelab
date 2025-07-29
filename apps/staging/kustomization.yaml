@@ -6,4 +6,4 @@ resources:
   - homepage-dashboard
   - headlamp
   - commafeed
-  - arr-stack
+  # - arr-stack
