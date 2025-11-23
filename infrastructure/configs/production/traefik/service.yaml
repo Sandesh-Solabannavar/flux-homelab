@@ -9,7 +9,7 @@ metadata:
     metallb.io/ip-allocated-from-pool: default-ip-pool
 spec:
   type: LoadBalancer
-  loadBalancerIP: 172.18.0.80
+  loadBalancerIP: 192.168.1.81
   ports:
     - name: web
       protocol: TCP
