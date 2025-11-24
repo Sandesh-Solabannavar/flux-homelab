@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: infotropyiq-web
+  namespace: infotropyiq
+spec:
+  type: LoadBalancer
+  selector:
+    app: infotropyiq-web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

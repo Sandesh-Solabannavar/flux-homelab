@@ -1,0 +1,37 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: infotropyiq-web
+  namespace: infotropyiq
+  labels:
+    app: infotropyiq-web
+spec:
+  replicas: 3
+  progressDeadlineSeconds: 600
+  revisionHistoryLimit: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: infotropyiq-web
+  template:
+    metadata:
+      labels:
+        app: infotropyiq-web
+    spec:
+      containers:
+        - name: infotropyiq-web
+          image: 192.168.1.11:5000/infotropyiq-web:latest
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+          env:
+            - name: VITE_SERVER_URL
+              value: "http://infotropyiq-server.infotropyiq.svc.cluster.local"
+          ports:
+            - containerPort: 80

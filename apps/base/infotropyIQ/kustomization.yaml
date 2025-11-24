@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: infotropyiq
+resources:
+  - namespace.yaml
+  - deployment-server.yaml
+  - deployment-web.yaml
+  - service-server.yaml
+  - service-web.yaml

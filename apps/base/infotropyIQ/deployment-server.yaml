@@ -1,0 +1,37 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: infotropyiq-server
+  namespace: infotropyiq
+  labels:
+    app: infotropyiq-server
+spec:
+  replicas: 3
+  progressDeadlineSeconds: 600
+  revisionHistoryLimit: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: infotropyiq-server
+  template:
+    metadata:
+      labels:
+        app: infotropyiq-server
+    spec:
+      containers:
+        - name: infotropyiq-server
+          image: 192.168.1.11:5000/infotropyiq-server:latest
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          envFrom:
+            - secretRef:
+                name: infotropyiq-env
+          ports:
+            - containerPort: 3000
