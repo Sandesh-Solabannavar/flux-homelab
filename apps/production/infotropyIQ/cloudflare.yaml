@@ -80,9 +80,6 @@ data:
 
     ingress:
     - hostname: stg-app.infotropyiq.com
-      service: http://infotropyiq-server:3000  # API backend
-      path: /api/*
-    - hostname: stg-app.infotropyiq.com
       service: http://infotropyiq-web:80  # Frontend
 
     # This rule matches any traffic which didn't match a previous rule, and responds with HTTP 404.
