@@ -5,6 +5,8 @@ metadata:
   namespace: headlamp
 spec:
   values:
+    enabled: true
+    ingressClassName: traefik
     ingress:
       hosts:
         - host: headlamp-stg.sandeshsolabannavar.com

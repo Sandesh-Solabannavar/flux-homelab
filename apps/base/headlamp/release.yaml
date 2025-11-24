@@ -13,13 +13,7 @@ spec:
   interval: 50m0s
   values:
     ingress:
-      enabled: true
-      ingressClassName: traefik
-      hosts:
-        - host: headlamp.sandeshsolabannavar.com
-          paths:
-            - path: /
-              type: ImplementationSpecific
+      enabled: false
     config:
       pluginsDir: /build/plugins
     initContainers:
