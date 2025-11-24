@@ -33,5 +33,14 @@ spec:
           envFrom:
             - secretRef:
                 name: infotropyiq-env
+          env:
+            - name: BETTER_AUTH_URL
+              value: "http://infotropyiq-server.infotropyiq.svc.cluster.local"
+            - name: NODE_ENV
+              value: "production"
+            - name: POLAR_SUCCESS_URL
+              value: "http://infotropyiq-server.infotropyiq.svc.cluster.local/success?checkout_id={CHECKOUT_ID}"
+            - name: CORS_ORIGIN
+              value: "http://infotropyiq-web.infotropyiq.svc.cluster.local"
           ports:
             - containerPort: 3000
