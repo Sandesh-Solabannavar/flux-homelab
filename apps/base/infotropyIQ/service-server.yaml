@@ -4,7 +4,6 @@ metadata:
   name: infotropyiq-server
   namespace: infotropyiq
 spec:
-  type: LoadBalancer
   selector:
     app: infotropyiq-server
   ports:

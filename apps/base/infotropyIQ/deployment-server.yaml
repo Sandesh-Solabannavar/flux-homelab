@@ -35,12 +35,12 @@ spec:
                 name: infotropyiq-env
           env:
             - name: BETTER_AUTH_URL
-              value: "http://infotropyiq-server.infotropyiq.svc.cluster.local"
+              value: "http://localhost:3000"
             - name: NODE_ENV
               value: "production"
             - name: POLAR_SUCCESS_URL
-              value: "http://infotropyiq-server.infotropyiq.svc.cluster.local/success?checkout_id={CHECKOUT_ID}"
+              value: "http://infotropyiq-web:80/success?checkout_id={CHECKOUT_ID}"
             - name: CORS_ORIGIN
-              value: "http://infotropyiq-web.infotropyiq.svc.cluster.local"
+              value: "http://infotropyiq-web:80"
           ports:
             - containerPort: 3000
