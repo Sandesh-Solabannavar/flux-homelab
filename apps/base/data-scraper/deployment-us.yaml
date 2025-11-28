@@ -40,3 +40,46 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-scraper-us-desc
+  namespace: data-scraper
+  labels:
+    app: data-scraper-us-desc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-scraper-us-desc
+  template:
+    metadata:
+      labels:
+        app: data-scraper-us-desc
+    spec:
+      containers:
+        - name: data-scraper-us-desc
+          image: 192.168.1.11:5000/scraper:latest
+          imagePullPolicy: IfNotPresent # Important for using remote images
+          ports:
+            - containerPort: 3000
+          env:
+            - name: COUNTRY
+              value: US
+            - name: METHOD
+              value: main
+            - name: ORDER
+              value: desc
+            - name: LIMIT
+              value: "100"
+          envFrom:
+            - secretRef:
+                name: data-scraper-secrets
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
