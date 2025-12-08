@@ -4,3 +4,4 @@ namespace: infotropyiq
 resources:
   - namespace.yaml
   - deployment-us.yaml
+  - deployment-refresh.yaml
