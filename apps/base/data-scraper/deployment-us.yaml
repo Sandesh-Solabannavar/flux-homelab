@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: data-scraper-us
-          image: 192.168.1.11:5000/scraper:latest
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:9a98580
           imagePullPolicy: IfNotPresent # Important for using remote images
           ports:
             - containerPort: 3000
@@ -40,6 +40,8 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
+      imagePullSecrets:
+        - name: ghcr-login-secret
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -60,7 +62,7 @@ spec:
     spec:
       containers:
         - name: data-scraper-us-desc
-          image: 192.168.1.11:5000/scraper:latest
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:9a98580
           imagePullPolicy: IfNotPresent # Important for using remote images
           ports:
             - containerPort: 3000
@@ -83,3 +85,5 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
+      imagePullSecrets:
+        - name: ghcr-login-secret
