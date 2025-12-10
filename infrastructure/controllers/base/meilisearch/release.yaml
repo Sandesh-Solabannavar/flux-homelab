@@ -1,0 +1,150 @@
+# clusters/homelab/infotropyiq/infrastructure/meilisearch/helmrelease.yaml
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: meilisearch
+  namespace: meilisearch
+spec:
+  interval: 30m
+  timeout: 10m
+  chart:
+    spec:
+      chart: meilisearch
+      version: ">=0.6.0 <1.0.0" # Pin to compatible versions
+      sourceRef:
+        kind: HelmRepository
+        name: meilisearch
+        namespace: meilisearch
+      interval: 12h
+
+  # Automatically upgrade on new chart versions
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+
+  # Rollback on failure
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  values:
+    # Environment - CRITICAL for production
+    environment:
+      MEILI_ENV: production
+      MEILI_NO_ANALYTICS: true
+
+      # Performance tuning for billions of records
+      MEILI_MAX_INDEXING_MEMORY: "8GB"
+      MEILI_MAX_INDEXING_THREADS: "4"
+      MEILI_LOG_LEVEL: "INFO"
+
+      # Database path
+      MEILI_DB_PATH: "/meili_data/data"
+
+    # Master key from secret
+    auth:
+      existingMasterKeySecret: meilisearch-master-key
+
+    # Use StatefulSet for persistence (not Deployment)
+    # This is CRITICAL for data durability
+    statefulset:
+      enabled: true
+
+    # Replica count
+    replicaCount: 3 # Start with 1, scale to 3 for HA
+
+    # Resource requests and limits
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 4Gi
+      limits:
+        cpu: 4000m
+        memory: 8Gi
+
+    # Persistent Volume - CRITICAL for data persistence
+    persistence:
+      enabled: true
+      storageClass: "local-path" # Change to your storage class
+      accessMode: ReadWriteOnce
+      size: 50Gi # Scale based on data size
+      annotations: {}
+
+    # Service configuration
+    service:
+      type: ClusterIP
+      port: 7700
+      annotations: {}
+
+    # Ingress configuration (if using Traefik/Nginx)
+    ingress:
+      enabled: false
+      className: "traefik" # or "nginx"
+      annotations:
+        cert-manager.io/cluster-issuer: "letsencrypt-prod"
+        # traefik.ingress.kubernetes.io/router.middlewares: "meilisearch-ratelimit@kubernetescrd"
+      hosts:
+        - host: meilisearch.infotropyiq.local # Change to your domain
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: meilisearch-tls
+          hosts:
+            - meilisearch.infotropyiq.local
+
+    # Security context
+    podSecurityContext:
+      fsGroup: 1000
+      runAsUser: 1000
+      runAsNonRoot: true
+
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: false
+
+    # Node affinity (optional - pin to specific nodes)
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+                - key: node-role.kubernetes.io/worker
+                  operator: In
+                  values:
+                    - "true"
+
+    # Pod disruption budget for HA
+    podDisruptionBudget:
+      enabled: true # Enable when running 3+ replicas
+      minAvailable: 1
+
+    # Liveness and readiness probes
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 7700
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+
+    readinessProbe:
+      httpGet:
+        path: /health
+        port: 7700
+      initialDelaySeconds: 15
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 3
+
+    # Resource monitoring
+    serviceMonitor:
+      enabled: false # Enable if using Prometheus
+      interval: 30s
