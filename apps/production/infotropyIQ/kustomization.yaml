@@ -6,3 +6,4 @@ resources:
   - ../../base/infotropyIQ
   - cloudflare.yaml
   - redis.yaml
+  - meilisearch-sync-cronjob.yaml

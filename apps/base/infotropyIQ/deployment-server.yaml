@@ -42,5 +42,9 @@ spec:
               value: "https://stg-app.infotropyiq.com/success?checkout_id={CHECKOUT_ID}"
             - name: CORS_ORIGIN
               value: "https://stg-app.infotropyiq.com"
+            - name: MEILISEARCH_HOST
+              value: "http://meilisearch.meilisearch.svc.cluster.local:7700"
+            - name: USE_MEILISEARCH
+              value: "true"
           ports:
             - containerPort: 3000

@@ -1,0 +1,30 @@
+# k8s/meilisearch-sync-cronjob.yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: meilisearch-full-sync
+  namespace: infotropyiq
+spec:
+  schedule: "0 2 * * *" # Every day at 2 AM
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: sync
+              image: 192.168.1.11:5000/infotropyiq-server:latest
+              command: ["bun", "run", "sync:all"]
+              env:
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: infotropyiq-env
+                      key: DATABASE_URL
+                - name: MEILISEARCH_HOST
+                  value: "http://meilisearch.meilisearch.svc.cluster.local:7700"
+                - name: MEILISEARCH_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: infotropyiq-env
+                      key: MEILISEARCH_API_KEY
+          restartPolicy: OnFailure
