@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: meilisearch
-      version: ">=0.6.0 <1.0.0" # Pin to compatible versions
+      version: "0.17.2" # Pin to compatible versions
       sourceRef:
         kind: HelmRepository
         name: meilisearch
