@@ -9,24 +9,24 @@ spec:
   chart:
     spec:
       chart: meilisearch
-      version: "0.17.2" # Pin to compatible versions
+      version: "0.18.0" # Pin to compatible versions
       sourceRef:
         kind: HelmRepository
         name: meilisearch
         namespace: meilisearch
       interval: 12h
 
-  # Automatically upgrade on new chart versions
-  upgrade:
-    remediation:
-      remediateLastFailure: true
-      retries: 3
+  # # Automatically upgrade on new chart versions
+  # upgrade:
+  #   remediation:
+  #     remediateLastFailure: true
+  #     retries: 3
 
-  # Rollback on failure
-  rollback:
-    recreate: true
-    force: true
-    cleanupOnFail: true
+  # # Rollback on failure
+  # rollback:
+  #   recreate: true
+  #   force: true
+  #   cleanupOnFail: true
 
   values:
     # Environment - CRITICAL for production
