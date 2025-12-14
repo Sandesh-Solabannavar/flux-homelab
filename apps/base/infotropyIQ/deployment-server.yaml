@@ -46,5 +46,7 @@ spec:
               value: "http://meilisearch.meilisearch.svc.cluster.local:7700"
             - name: USE_MEILISEARCH
               value: "true"
+            - name: JOB_SPY_API
+              value: "http://jobspy-api.jobspy.svc.cluster.local:8000"
           ports:
             - containerPort: 3000
