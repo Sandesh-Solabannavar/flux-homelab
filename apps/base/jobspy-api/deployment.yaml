@@ -1,0 +1,47 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: jobspy-api
+  namespace: jobspy
+  labels:
+    app: jobspy-api
+spec:
+  replicas: 3
+  progressDeadlineSeconds: 600
+  revisionHistoryLimit: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: jobspy-api
+  template:
+    metadata:
+      labels:
+        app: jobspy-api
+    spec:
+      containers:
+        - name: jobspy-api
+          image: rainmanjam/jobspy-api:latest
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          env:
+            - name: ENABLE_API_KEY_AUTH
+              value: "false"
+            - name: DEFAULT_SITE_NAMES
+              value: "indeed,linkedin,zip_recruiter,glassdoor,google,bayt,naukri"
+            - name: DEFAULT_RESULTS_WANTED
+              value: "20"
+            - name: DEFAULT_DISTANCE
+              value: "50"
+            - name: ENABLE_CACHE
+              value: "true"
+            - name: CACHE_EXPIRY
+              value: "3600"
+          ports:
+            - containerPort: 8000

@@ -6,3 +6,4 @@ resources:
   - infotropyIQ
   - data-scraper
   # - headlamp
+  - jobspy-api
