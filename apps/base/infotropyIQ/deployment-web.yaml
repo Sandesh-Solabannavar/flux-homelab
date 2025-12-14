@@ -32,6 +32,6 @@ spec:
               memory: "256Mi"
           env:
             - name: BACKEND_URL
-              value: "http://infotropyiq-server:3000"
+              value: "http://infotropyiq-server:3000/api"
           ports:
             - containerPort: 80
