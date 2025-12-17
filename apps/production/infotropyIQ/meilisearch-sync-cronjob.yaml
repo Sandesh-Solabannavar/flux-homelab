@@ -5,7 +5,7 @@ metadata:
   name: meilisearch-full-sync
   namespace: infotropyiq
 spec:
-  schedule: "0 2 * * *" # Every day at 2 AM
+  schedule: "0 3 * * *" # Every day at 3 AM
   jobTemplate:
     spec:
       template:
