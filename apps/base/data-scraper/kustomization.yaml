@@ -5,3 +5,4 @@ resources:
   - namespace.yaml
   - deployment-us.yaml
   - deployment-refresh.yaml
+  - deployment-job-scraping.yaml
