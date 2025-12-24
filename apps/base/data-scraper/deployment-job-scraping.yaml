@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-job-scraping-asc
+  namespace: data-scraper
+  labels:
+    app: deployment-job-scraping-asc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deployment-job-scraping-asc
+  template:
+    metadata:
+      labels:
+        app: deployment-job-scraping-asc
+    spec:
+      containers:
+        - name: ddeployment-job-scraping-asc
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:194d91a
+          imagePullPolicy: IfNotPresent # Important for using remote images
+          ports:
+            - containerPort: 3000
+          env:
+            - name: METHOD
+              value: processJobFetching
+            - name: ORDER
+              value: asc
+            - name: LIMIT
+              value: "500"
+          envFrom:
+            - secretRef:
+                name: data-scraper-secrets
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+      imagePullSecrets:
+        - name: ghcr-login-secret
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-job-scraping-desc
+  namespace: data-scraper
+  labels:
+    app: deployment-job-scraping-desc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deployment-job-scraping-desc
+  template:
+    metadata:
+      labels:
+        app: deployment-job-scraping-desc
+    spec:
+      containers:
+        - name: ddeployment-job-scraping-desc
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:194d91a
+          imagePullPolicy: IfNotPresent # Important for using remote images
+          ports:
+            - containerPort: 3000
+          env:
+            - name: METHOD
+              value: processJobFetching
+            - name: ORDER
+              value: desc
+            - name: LIMIT
+              value: "500"
+          envFrom:
+            - secretRef:
+                name: data-scraper-secrets
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+      imagePullSecrets:
+        - name: ghcr-login-secret
