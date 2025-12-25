@@ -16,8 +16,8 @@ spec:
       version: "1.4.1" # Specify version; avoid using 'stable'
       sourceRef:
         kind: HelmRepository
-        name: makeplane
-        namespace: flux-system
+        name: plane
+        namespace: plane
 
   # Create namespace if it doesn't exist
   install:
