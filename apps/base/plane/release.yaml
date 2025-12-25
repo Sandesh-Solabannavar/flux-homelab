@@ -1,0 +1,65 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: plane
+  namespace: plane
+spec:
+  # Interval for checking upgrades
+  interval: 10m
+  timeout: 10m
+  wait: true
+  waitForJobs: true
+
+  chart:
+    spec:
+      chart: plane-ce
+      version: "1.4.1" # Specify version; avoid using 'stable'
+      sourceRef:
+        kind: HelmRepository
+        name: makeplane
+        namespace: flux-system
+
+  # Create namespace if it doesn't exist
+  install:
+    crds: Create
+    createNamespace: true
+
+  upgrade:
+    crds: CreateReplace
+
+  values:
+    # ===== INGRESS CONFIGURATION =====
+    # Disabled as you'll use Cloudflare Tunnel for external access
+    ingress:
+      enabled: false
+
+    # ===== POSTGRES CONFIGURATION =====
+    postgres:
+      # Deploy stateful postgres inside cluster
+      local_setup: true
+      # Adjust storage class to match your cluster setup
+      storageClass: "local-path" # Change if using different storage
+      storage: "20Gi"
+
+    # ===== REDIS CONFIGURATION =====
+    redis:
+      local_setup: true
+      storageClass: "local-path"
+      storage: "5Gi"
+
+    # ===== MINIO (S3 STORAGE) CONFIGURATION =====
+    minio:
+      local_setup: true
+      storageClass: "local-path"
+      storage: "50Gi"
+
+    rabbitmq:
+      local_setup: true
+      storageClass: "local-path"
+      storage: "5Gi"
+
+    external_secrets:
+      rabbitmq_existingSecret: plane-rabbitmq-auth
+      pgdb_existingSecret: plane-postgres-auth
+      app_env_existingSecret: plane-app-env
+      live_env_existingSecret: plane-live-env

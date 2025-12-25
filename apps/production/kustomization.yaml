@@ -7,3 +7,4 @@ resources:
   - data-scraper
   # - headlamp
   - jobspy-api
+  - plane
