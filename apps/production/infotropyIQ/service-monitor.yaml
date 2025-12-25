@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ServiceMonitor
+metadata:
+  name: infotropyiq-server
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: infotropyiq-server
+  endpoints:
+    - port: 3000
+      path: /metrics
+      interval: 30s

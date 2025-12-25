@@ -33,6 +33,9 @@ spec:
             schema: v13
     singleBinary:
       replicas: 1
+      persistence:
+        enabled: true
+        size: 30Gi
     read:
       replicas: 0
     backend:

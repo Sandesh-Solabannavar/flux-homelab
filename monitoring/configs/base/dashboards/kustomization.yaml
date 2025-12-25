@@ -34,15 +34,15 @@ configMapGenerator:
     options:
       labels:
         grafana_dashboard: "1"
-  # - name: extra-dashboards
-  #   files:
-  #     - extra-dashboards/edb-postgres.json # https://github.com/EnterpriseDB/docs/blob/main/product_docs/docs/postgres_for_kubernetes/1/samples/monitoring/grafana-dashboard.json
-  #     # - extra-dashboards/node-exporter-full.json
-  #     - extra-dashboards/node-exporter-nodename.json
-  #     - extra-dashboards/cloudflared.json
-  #   options:
-  #     labels:
-  #       grafana_dashboard: "1"
+  - name: extra-dashboards
+    files:
+      # - extra-dashboards/edb-postgres.json # https://github.com/EnterpriseDB/docs/blob/main/product_docs/docs/postgres_for_kubernetes/1/samples/monitoring/grafana-dashboard.json
+      # - extra-dashboards/node-exporter-full.json
+      - extra-dashboards/node-exporter-nodename.json
+      - extra-dashboards/cloudflared.json
+    options:
+      labels:
+        grafana_dashboard: "1"
   # - name: personal-dashboards
   #   files:
   #     - personal-dashboards/running-this-week.json
