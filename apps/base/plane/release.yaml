@@ -7,8 +7,6 @@ spec:
   # Interval for checking upgrades
   interval: 10m
   timeout: 10m
-  wait: true
-  waitForJobs: true
 
   chart:
     spec:
