@@ -16,8 +16,8 @@ spec:
         app: deployment-job-scraping-asc
     spec:
       containers:
-        - name: ddeployment-job-scraping-asc
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:c6b5eff
+        - name: deployment-job-scraping-asc
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:f929feb
           imagePullPolicy: IfNotPresent # Important for using remote images
           ports:
             - containerPort: 3000
@@ -27,7 +27,7 @@ spec:
             - name: ORDER
               value: asc
             - name: LIMIT
-              value: "500"
+              value: "1000"
           envFrom:
             - secretRef:
                 name: data-scraper-secrets
@@ -59,8 +59,8 @@ spec:
         app: deployment-job-scraping-desc
     spec:
       containers:
-        - name: ddeployment-job-scraping-desc
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:c6b5eff
+        - name: deployment-job-scraping-desc
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:f929feb
           imagePullPolicy: IfNotPresent # Important for using remote images
           ports:
             - containerPort: 3000
@@ -70,7 +70,7 @@ spec:
             - name: ORDER
               value: desc
             - name: LIMIT
-              value: "500"
+              value: "1000"
           envFrom:
             - secretRef:
                 name: data-scraper-secrets

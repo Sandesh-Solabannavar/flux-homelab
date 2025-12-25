@@ -6,3 +6,4 @@ resources:
   - deployment-us.yaml
   - deployment-refresh.yaml
   - deployment-job-scraping.yaml
+  - deployment-apollo.yaml
