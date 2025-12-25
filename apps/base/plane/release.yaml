@@ -23,10 +23,10 @@ spec:
     createNamespace: true
 
   values:
-    # ===== INGRESS CONFIGURATION =====
-    # Disabled as you'll use Cloudflare Tunnel for external access
     ingress:
-      enabled: false
+      enabled: true
+      appHost: "plane.infotropyiq.com"
+      ingressClass: "traefik"
 
     # ===== POSTGRES CONFIGURATION =====
     postgres:
