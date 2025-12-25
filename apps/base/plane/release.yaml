@@ -14,7 +14,7 @@ spec:
       version: "1.4.1" # Specify version; avoid using 'stable'
       sourceRef:
         kind: HelmRepository
-        name: makeplane
+        name: plane
         namespace: plane
       interval: 12h
   # Create namespace if it doesn't exist
