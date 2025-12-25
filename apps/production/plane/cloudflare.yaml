@@ -82,7 +82,7 @@ data:
     - hostname: plane.infotropyiq.com
       service: http://plane-web:3000
 
-    - hostname: plane.infotropyiq.com/god-mode/*
+    - hostname: plane.infotropyiq.com/god-mode/
       service: http://plane-admin:3000
 
     # This rule matches any traffic which didn't match a previous rule, and responds with HTTP 404.
