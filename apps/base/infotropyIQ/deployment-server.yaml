@@ -48,5 +48,7 @@ spec:
               value: "true"
             - name: JOB_SPY_API
               value: "http://jobspy-api.jobspy.svc.cluster.local:8000"
+            - name: LOKI_HOST
+              value: "http://loki.monitoring.svc.cluster.local:3100"
           ports:
             - containerPort: 3000
