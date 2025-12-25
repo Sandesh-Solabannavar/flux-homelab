@@ -3,4 +3,6 @@ kind: Kustomization
 namespace: plane
 resources:
   - secrets.yaml
+  - cloudflare-secrets.yaml
+  - cloudflare.yaml
   - ../../base/plane
