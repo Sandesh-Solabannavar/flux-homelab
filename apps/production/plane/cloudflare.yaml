@@ -80,10 +80,10 @@ data:
 
     ingress:
     - hostname: plane.infotropyiq.com
-      service: http://plane-app-web.plane:3000/
+      service: http://plane-web:3000/
 
     - hostname: plane.infotropyiq.com/god-mode/*
-      service: http://plane-app-admin.plane:3000/
+      service: http://plane-admin:3000/
 
     # This rule matches any traffic which didn't match a previous rule, and responds with HTTP 404.
     - service: http_status:404
