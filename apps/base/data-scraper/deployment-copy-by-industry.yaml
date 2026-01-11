@@ -1,33 +1,33 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: deployment-apollo-asc
+  name: data-scraper-copy-by-industry
   namespace: data-scraper
   labels:
-    app: deployment-apollo-asc
+    app: data-scraper-copy-by-industry
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: deployment-apollo-asc
+      app: data-scraper-copy-by-industry
   template:
     metadata:
       labels:
-        app: deployment-apollo-asc
+        app: data-scraper-copy-by-industry
     spec:
       containers:
-        - name: deployment-apollo-asc
+        - name: data-scraper-copy-by-industry
           image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:2ad7d25
           imagePullPolicy: IfNotPresent # Important for using remote images
           ports:
             - containerPort: 3000
           env:
             - name: METHOD
-              value: processApollo
-            - name: ORDER
-              value: asc
-            - name: LIMIT
-              value: "500"
+              value: processCopyByIndustry
+            - name: BATCH_SIZE
+              value: "1000"
+            - name: INDUSTRY
+              value: "Customer Relationship Management (CRM) Software"
           envFrom:
             - secretRef:
                 name: data-scraper-secrets
@@ -40,3 +40,5 @@ spec:
               memory: "512Mi"
       imagePullSecrets:
         - name: ghcr-login-secret
+---
+
