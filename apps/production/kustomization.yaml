@@ -4,7 +4,7 @@ resources:
   # - podinfo
   # - nginx
   - infotropyIQ
-  - data-scraper
+  # - data-scraper
   # - headlamp
   - jobspy-api
   # - plane
