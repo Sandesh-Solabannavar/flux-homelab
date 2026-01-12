@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: data-scraper-copy-indprd
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:1ff5f83
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:c033ec6
           imagePullPolicy: IfNotPresent # Important for using remote images
           ports:
             - containerPort: 3000
@@ -26,6 +26,8 @@ spec:
               value: copyDataIndustryProduct
             - name: BATCH_SIZE
               value: "1000"
+            - name: CONTINUE
+              value: "true"
           envFrom:
             - secretRef:
                 name: data-scraper-secrets
