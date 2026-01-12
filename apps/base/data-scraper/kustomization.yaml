@@ -8,4 +8,4 @@ resources:
   - deployment-job-scraping.yaml
   # - deployment-apollo.yaml
   - deployment-copy-by-industry.yaml
-  - deployment-copy-indprd.yaml
+  # - deployment-copy-indprd.yaml
