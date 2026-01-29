@@ -4,8 +4,9 @@ namespace: infotropyiq
 resources:
   - namespace.yaml
   - deployment-us.yaml
-  - deployment-refresh.yaml
-  - deployment-job-scraping.yaml
+  - deployment-gb.yaml
+  # - deployment-refresh.yaml
+  # - deployment-job-scraping.yaml
   # - deployment-apollo.yaml
   # - deployment-copy-by-industry.yaml
   # - deployment-copy-indprd.yaml

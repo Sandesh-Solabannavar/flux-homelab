@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-scraper-gb
+  namespace: data-scraper
+  labels:
+    app: data-scraper-gb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-scraper-gb
+  template:
+    metadata:
+      labels:
+        app: data-scraper-gb
+    spec:
+      containers:
+        - name: data-scraper-gb
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:14c44e1
+          imagePullPolicy: IfNotPresent # Important for using remote images
+          ports:
+            - containerPort: 3000
+          env:
+            - name: COUNTRY
+              value: GB
+            - name: METHOD
+              value: main
+            - name: ORDER
+              value: asc
+            - name: LIMIT
+              value: "100"
+          envFrom:
+            - secretRef:
+                name: data-scraper-secrets
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+      imagePullSecrets:
+        - name: ghcr-login-secret
+---
