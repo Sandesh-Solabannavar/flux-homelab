@@ -7,4 +7,4 @@ resources:
   - redis-operator
   # - local-path
   - meilisearch
-  - flux-capacitor
+  # - flux-capacitor
