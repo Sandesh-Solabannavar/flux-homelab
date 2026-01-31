@@ -3,8 +3,8 @@ kind: Kustomization
 namespace: infotropyiq
 resources:
   - namespace.yaml
-  # - deployment-us.yaml
-  # - deployment-gb.yaml
+  - deployment-us.yaml
+  - deployment-gb.yaml
   # - deployment-refresh.yaml
   # - deployment-job-scraping.yaml
   # - deployment-apollo.yaml
