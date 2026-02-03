@@ -1,29 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ahey-server
+  name: ahey-automation
   namespace: ahey-chat
   labels:
-    app: ahey-server
+    app: ahey-automation
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ahey-server
+      app: ahey-automation
   template:
     metadata:
       labels:
-        app: ahey-server
+        app: ahey-automation
     spec:
       containers:
-        - name: ahey-server
-          image: 192.168.1.11:5000/ahey_chat-server:latest
-          ports:
-            - containerPort: 3000
+        - name: ahey-automation
+          image: 192.168.1.11:5000/ahey_chat-automation:latest
           imagePullPolicy: IfNotPresent # Important for using remote images
           envFrom:
             - secretRef:
-                name: ahey-server-secrets
+                name: ahey-automation-secrets
           resources:
             requests:
               cpu: "500m"
