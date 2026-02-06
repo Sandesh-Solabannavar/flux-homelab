@@ -20,7 +20,7 @@ spec:
           image: 192.168.1.11:5000/ahey_chat-server:latest
           ports:
             - containerPort: 3000
-          imagePullPolicy: IfNotPresent # Important for using remote images
+          imagePullPolicy: Always
           envFrom:
             - secretRef:
                 name: ahey-server-secrets

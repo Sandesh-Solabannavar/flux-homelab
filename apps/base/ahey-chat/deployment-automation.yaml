@@ -18,7 +18,7 @@ spec:
       containers:
         - name: ahey-automation
           image: 192.168.1.11:5000/ahey_chat-automation:latest
-          imagePullPolicy: IfNotPresent # Important for using remote images
+          imagePullPolicy: Always
           envFrom:
             - secretRef:
                 name: ahey-automation-secrets
