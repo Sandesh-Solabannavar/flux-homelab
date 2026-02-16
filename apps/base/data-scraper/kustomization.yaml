@@ -5,6 +5,7 @@ resources:
   - namespace.yaml
   # - deployment-us.yaml
   - deployment-gb.yaml
+  - deployment-germany.yaml
   # - deployment-refresh.yaml
   # - deployment-job-scraping.yaml
   # - deployment-apollo.yaml
