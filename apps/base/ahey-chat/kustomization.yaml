@@ -4,4 +4,4 @@ namespace: ahey-chat
 resources:
   - namespace.yaml
   # - deployment.yaml
-  # - deployment-automation.yaml
+  - deployment-automation.yaml
