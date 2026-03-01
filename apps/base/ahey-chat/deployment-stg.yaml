@@ -67,8 +67,7 @@ metadata:
   namespace: ahey-chat
 spec:
   selector:
-    matchLabels:
-      app: ahey-server-stg
+    app: ahey-server-stg
   ports:
     - protocol: TCP
       port: 3000
