@@ -1,0 +1,75 @@
+apiVersion: redis.redis.opstreelabs.in/v1beta2
+kind: RedisReplication
+metadata:
+  name: redis-replication-stg
+  namespace: ahey-chat
+spec:
+  clusterSize: 3
+  kubernetesConfig:
+    image: quay.io/opstree/redis:latest
+    imagePullPolicy: IfNotPresent
+    redisSecret:
+      name: redis-secret
+      key: redis-password
+  storage:
+    volumeClaimTemplate:
+      spec:
+        storageClassName: local-path
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+  redisExporter:
+    enabled: false
+    image: quay.io/opstree/redis-exporter:latest
+  podSecurityContext:
+    runAsUser: 1000
+    fsGroup: 1000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ahey-server-stg
+  namespace: ahey-chat
+  labels:
+    app: ahey-server-stg
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ahey-server-stg
+  template:
+    metadata:
+      labels:
+        app: ahey-server-stg
+    spec:
+      containers:
+        - name: ahey-server-stg
+          image: 192.168.1.11:5000/ahey_chat-server:latest
+          ports:
+            - containerPort: 3000
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: ahey-server-secrets-stg
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ahey-server-stg
+  namespace: ahey-chat
+spec:
+  selector:
+    matchLabels:
+      app: ahey-server-stg
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000

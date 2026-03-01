@@ -3,3 +3,4 @@ kind: Kustomization
 namespace: ahey-chat
 resources:
   - ../../base/ahey-chat
+  - cloudflare-stg.yaml
