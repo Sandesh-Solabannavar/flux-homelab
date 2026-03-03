@@ -1,29 +1,29 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: data-scraper-gb
+  name: data-scraper-jp
   namespace: data-scraper
   labels:
-    app: data-scraper-gb
+    app: data-scraper-jp
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: data-scraper-gb
+      app: data-scraper-jp
   template:
     metadata:
       labels:
-        app: data-scraper-gb
+        app: data-scraper-jp
     spec:
       containers:
-        - name: data-scraper-gb
+        - name: data-scraper-jp
           image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:8a499e7
           imagePullPolicy: IfNotPresent # Important for using remote images
           ports:
             - containerPort: 3000
           env:
             - name: COUNTRY
-              value: GB
+              value: JP
             - name: METHOD
               value: main
             - name: ORDER
@@ -46,29 +46,29 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: data-scraper-gb-desc
+  name: data-scraper-jp-desc
   namespace: data-scraper
   labels:
-    app: data-scraper-gb-desc
+    app: data-scraper-jp-desc
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: data-scraper-gb-desc
+      app: data-scraper-jp-desc
   template:
     metadata:
       labels:
-        app: data-scraper-gb-desc
+        app: data-scraper-jp-desc
     spec:
       containers:
-        - name: data-scraper-gb-desc
+        - name: data-scraper-jp-desc
           image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:8a499e7
           imagePullPolicy: IfNotPresent # Important for using remote images
           ports:
             - containerPort: 3000
           env:
             - name: COUNTRY
-              value: GB
+              value: JP
             - name: METHOD
               value: main
             - name: ORDER
