@@ -6,4 +6,4 @@ resources:
   - deployment-stg.yaml
   - deployment-prd.yaml
   - redisinsight.yaml
-  - deployment-automation.yaml # 1341
+  # - deployment-automation.yaml # 1367
