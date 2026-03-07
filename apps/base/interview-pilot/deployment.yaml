@@ -1,0 +1,74 @@
+apiVersion: redis.redis.opstreelabs.in/v1beta2
+kind: RedisReplication
+metadata:
+  name: redis-replication
+  namespace: interview-pilot
+spec:
+  clusterSize: 3
+  kubernetesConfig:
+    image: quay.io/opstree/redis:latest
+    imagePullPolicy: IfNotPresent
+    redisSecret:
+      name: redis-secret
+      key: redis-password
+  storage:
+    volumeClaimTemplate:
+      spec:
+        storageClassName: local-path
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+  redisExporter:
+    enabled: false
+    image: quay.io/opstree/redis-exporter:latest
+  podSecurityContext:
+    runAsUser: 1000
+    fsGroup: 1000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: interview-pilot-server
+  namespace: interview-pilot
+  labels:
+    app: interview-pilot-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: interview-pilot-server
+  template:
+    metadata:
+      labels:
+        app: interview-pilot-server
+    spec:
+      containers:
+        - name: interview-pilot-server
+          image: 192.168.1.11:5000/interviewpilot-server:latest
+          ports:
+            - containerPort: 3000
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: interview-pilot-server-secrets
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: interview-pilot-server
+  namespace: interview-pilot
+spec:
+  selector:
+    app: interview-pilot-server
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
