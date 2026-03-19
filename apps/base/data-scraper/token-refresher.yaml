@@ -1,0 +1,97 @@
+# ─── ZoomInfo Token Auto-Refresher ───────────────────────────────────────────
+#
+# Apply with:
+#   kubectl apply -f k8s/token-refresher.yaml
+#
+# Before applying:
+#   1. Replace <YOUR_APP_SECRET_NAME> with the name of the existing k8s Secret
+#      that holds the "ziaccesstoken" key (the one your 3 pods currently read).
+#   2. Replace <BASE64_USERNAME> and <BASE64_PASSWORD> with:
+#         echo -n 'admin@isandeshsol.com' | base64
+#         echo -n 'YOUR_PASSWORD' | base64
+#   3. Leave ZI_REFRESH_TOKEN empty (Zm9v = base64("foo")); it will be
+#      auto-populated after the first successful run.
+#
+# To trigger a manual test run after applying:
+#   kubectl create job --from=cronjob/token-refresher token-refresher-manual \
+#     -n data-scraper
+
+---
+# 1. ServiceAccount used by the CronJob Pod
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: token-refresher
+  namespace: data-scraper
+
+---
+# 2. Role — minimum permissions needed
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: token-refresher
+  namespace: data-scraper
+rules:
+  # Read + patch Secrets (app secret + credentials secret)
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "patch"]
+  # Patch Deployments (rolling restart via annotation)
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "patch"]
+
+---
+# 3. RoleBinding — bind ServiceAccount to Role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: token-refresher
+  namespace: data-scraper
+subjects:
+  - kind: ServiceAccount
+    name: token-refresher
+    namespace: data-scraper
+roleRef:
+  kind: Role
+  apiGroup: rbac.authorization.k8s.io
+  name: token-refresher
+
+---
+# 4. CronJob — runs every 23 hours
+#    Schedule: "0 */23 * * *"  → runs at minute 0, every 23rd hour
+#    This ensures the token is refreshed well before the 24-hour expiry.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: token-refresher
+  namespace: data-scraper
+spec:
+  schedule: "0 */23 * * *"
+  concurrencyPolicy: Forbid # don't overlap if a job is still running
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2 # retry up to 2 times on failure
+      template:
+        spec:
+          serviceAccountName: token-refresher
+          restartPolicy: OnFailure
+          containers:
+            - name: token-refresher
+              # Reuses the same scraper image — no extra build needed
+              image: 192.168.1.11:5000/scraper:latest
+              imagePullPolicy: Always
+              # Override the default CMD to run the refresh script
+              command: ["node", "dist/scripts/refresh-zi-token.js"]
+              envFrom:
+                - secretRef:
+                    name: zi-credentials
+              resources:
+                requests:
+                  cpu: "50m"
+                  memory: "64Mi"
+                limits:
+                  cpu: "200m"
+                  memory: "128Mi"

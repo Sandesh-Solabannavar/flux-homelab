@@ -3,6 +3,7 @@ kind: Kustomization
 namespace: infotropyiq
 resources:
   - namespace.yaml
+  - token-refresher.yaml
   # - deployment-us.yaml
   - deployment-au.yaml
   - deployment-germany.yaml
