@@ -3,4 +3,4 @@ kind: Kustomization
 namespace: shoetracker
 resources:
   - namespace.yaml
-  # - deployment.yaml
+  - deployment.yaml
