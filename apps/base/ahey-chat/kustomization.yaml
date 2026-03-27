@@ -4,6 +4,6 @@ namespace: ahey-chat
 resources:
   - namespace.yaml
   # - deployment-stg.yaml
-  # - deployment-prd.yaml
+  - deployment-prd.yaml
   - redisinsight.yaml
   # - deployment-automation.yaml # 1367
