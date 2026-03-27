@@ -51,7 +51,7 @@ spec:
           imagePullPolicy: Always
           envFrom:
             - secretRef:
-                name: shoetracker-server-secrets
+                name: shoetracker-server-secret
           resources:
             requests:
               cpu: "100m"
