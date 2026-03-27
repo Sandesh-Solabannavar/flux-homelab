@@ -23,7 +23,7 @@ spec:
             - containerPort: 3000
           env:
             - name: COUNTRY
-              value: DE
+              value: BE
             - name: METHOD
               value: main
             - name: ORDER
