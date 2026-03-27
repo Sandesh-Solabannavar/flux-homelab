@@ -1,0 +1,74 @@
+apiVersion: redis.redis.opstreelabs.in/v1beta2
+kind: RedisReplication
+metadata:
+  name: redis-replication
+  namespace: shoetracker
+spec:
+  clusterSize: 3
+  kubernetesConfig:
+    image: quay.io/opstree/redis:latest
+    imagePullPolicy: IfNotPresent
+    redisSecret:
+      name: redis-secret
+      key: redis-password
+  storage:
+    volumeClaimTemplate:
+      spec:
+        storageClassName: local-path
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+  redisExporter:
+    enabled: false
+    image: quay.io/opstree/redis-exporter:latest
+  podSecurityContext:
+    runAsUser: 1000
+    fsGroup: 1000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shoetracker-server
+  namespace: shoetracker
+  labels:
+    app: shoetracker-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shoetracker-server
+  template:
+    metadata:
+      labels:
+        app: shoetracker-server
+    spec:
+      containers:
+        - name: shoetracker-server
+          image: 192.168.1.11:5000/shoetracker-server:latest
+          ports:
+            - containerPort: 3000
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: shoetracker-server-secrets
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shoetracker-server
+  namespace: shoetracker
+spec:
+  selector:
+    app: shoetracker-server
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
