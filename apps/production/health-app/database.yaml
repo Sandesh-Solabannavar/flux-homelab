@@ -1,0 +1,34 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: health-app-db
+  namespace: health-app
+spec:
+  description: Postgres cluster for the health-app application
+  imageName: quay.io/enterprisedb/postgresql:17.7
+  instances: 3
+
+  monitoring:
+    enablePodMonitor: true
+
+  inheritedMetadata:
+    labels:
+      app: health-app-database
+      policy-type: "database"
+
+  storage:
+    storageClass: local-path
+    size: 5Gi
+
+  # handy: resources can be used to trigger a redeploy
+  resources:
+    requests:
+      memory: 600Mi
+      cpu: 200m
+
+  bootstrap:
+    initdb:
+      database: health_app
+      owner: health_app
+      secret:
+        name: health-app-db-secret

@@ -1,0 +1,44 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: health-app-server
+  namespace: health-app
+  labels:
+    app: health-app-server
+spec:
+  replicas: 1
+  progressDeadlineSeconds: 600
+  revisionHistoryLimit: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: health-app-server
+  template:
+    metadata:
+      labels:
+        app: health-app-server
+    spec:
+      containers:
+        - name: health-app-server
+          image: 192.168.1.11:5000/health-app-server:latest
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          envFrom:
+            - secretRef:
+                name: health-app-env
+          env:
+            - name: BETTER_AUTH_URL
+              value: "https://health-app.isandeshsol.com"
+            - name: NODE_ENV
+              value: "production"
+            - name: CORS_ORIGIN
+              value: "https://health-app.isandeshsol.com"
+          ports:
+            - containerPort: 3000
