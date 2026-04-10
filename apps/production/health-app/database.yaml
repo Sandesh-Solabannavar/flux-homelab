@@ -23,8 +23,8 @@ spec:
   # handy: resources can be used to trigger a redeploy
   resources:
     requests:
-      memory: 600Mi
-      cpu: 200m
+      memory: 200Mi
+      cpu: 100m
 
   bootstrap:
     initdb:
