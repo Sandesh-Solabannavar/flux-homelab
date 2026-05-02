@@ -4,3 +4,6 @@ namespace: interview-pilot
 resources:
   - ../../base/interview-pilot
   - cloudflare.yaml
+  - secrets.yaml
+  - database.yaml
+  - scheduled-backup.yaml

@@ -1,0 +1,77 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: shoetracker-db
+  namespace: shoetracker
+spec:
+  description: Postgres cluster for the shoetracker application
+  imageName: quay.io/enterprisedb/postgresql:17.7
+  # 1 instance: nodes are CPU-request-saturated (100% on all 3 nodes).
+  # CNPG hardcodes 100m CPU request on its init container per pod — cannot be removed.
+  # Data safety is provided by continuous WAL archiving + daily S3 base backups (PITR).
+  # Increase to 3 when CPU request headroom is available.
+  instances: 1
+
+  monitoring:
+    enablePodMonitor: true
+
+  inheritedMetadata:
+    labels:
+      app: shoetracker-database
+      policy-type: "database"
+
+  storage:
+    storageClass: local-path
+    size: 5Gi
+
+  resources:
+    requests:
+      memory: 200Mi
+
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://shoetracker-db-988182270694-ap-south-1/shoetracker-db
+      s3Credentials:
+        accessKeyId:
+          name: shoetracker-cnpg-s3-creds
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: shoetracker-cnpg-s3-creds
+          key: ACCESS_SECRET_KEY
+        region:
+          name: shoetracker-cnpg-s3-creds
+          key: AWS_DEFAULT_REGION
+      wal:
+        compression: gzip
+        maxParallel: 8
+      data:
+        compression: gzip
+        immediateCheckpoint: false
+    retentionPolicy: "30d"
+
+  # Migration bootstrap: imports the shoe_tracker database from Neon via pg_dump/pg_restore.
+  # After the first S3 base backup completes, replace this with bootstrap.recovery
+  # (see apps/production/ahey-chat/database.yaml for the steady-state pattern).
+  bootstrap:
+    initdb:
+      database: shoe_tracker
+      owner: shoe_tracker
+      secret:
+        name: shoetracker-db-secret
+      import:
+        type: microservice
+        databases:
+          - shoe_tracker
+        source:
+          externalCluster: neon-source
+
+  externalClusters:
+    - name: neon-source
+      connectionParameters:
+        host: ep-weathered-boat-a4r7mhg2.us-east-1.aws.neon.tech
+        user: shoe_tracker
+        dbname: shoe_tracker
+        sslmode: require
+      password:
+        name: neon-shoetracker-connection-secret
+        key: password

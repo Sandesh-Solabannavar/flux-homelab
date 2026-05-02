@@ -1,0 +1,77 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: interview-pilot-db
+  namespace: interview-pilot
+spec:
+  description: Postgres cluster for the interview-pilot application
+  imageName: quay.io/enterprisedb/postgresql:17.7
+  # 1 instance: nodes are CPU-request-saturated (100% on all 3 nodes).
+  # CNPG hardcodes 100m CPU request on its init container per pod — cannot be removed.
+  # Data safety is provided by continuous WAL archiving + daily S3 base backups (PITR).
+  # Increase to 3 when CPU request headroom is available.
+  instances: 1
+
+  monitoring:
+    enablePodMonitor: true
+
+  inheritedMetadata:
+    labels:
+      app: interview-pilot-database
+      policy-type: "database"
+
+  storage:
+    storageClass: local-path
+    size: 5Gi
+
+  resources:
+    requests:
+      memory: 200Mi
+
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://interview-pilot-db-988182270694-ap-south-1/interview-pilot-db
+      s3Credentials:
+        accessKeyId:
+          name: interview-pilot-cnpg-s3-creds
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: interview-pilot-cnpg-s3-creds
+          key: ACCESS_SECRET_KEY
+        region:
+          name: interview-pilot-cnpg-s3-creds
+          key: AWS_DEFAULT_REGION
+      wal:
+        compression: gzip
+        maxParallel: 8
+      data:
+        compression: gzip
+        immediateCheckpoint: false
+    retentionPolicy: "30d"
+
+  # Migration bootstrap: imports the interview-pilot database from Neon via pg_dump/pg_restore.
+  # After the first S3 base backup completes, replace this with bootstrap.recovery
+  # (see apps/production/ahey-chat/database.yaml for the steady-state pattern).
+  bootstrap:
+    initdb:
+      database: interview-pilot
+      owner: interview-pilot
+      secret:
+        name: interview-pilot-db-secret
+      import:
+        type: microservice
+        databases:
+          - interview-pilot
+        source:
+          externalCluster: neon-source
+
+  externalClusters:
+    - name: neon-source
+      connectionParameters:
+        host: ep-noisy-hall-ai71n2fy.c-4.us-east-1.aws.neon.tech
+        user: interview-pilot
+        dbname: interview-pilot
+        sslmode: require
+      password:
+        name: neon-interview-pilot-connection-secret
+        key: password
