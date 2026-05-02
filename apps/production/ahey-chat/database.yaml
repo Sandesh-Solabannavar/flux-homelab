@@ -33,6 +33,10 @@ spec:
   backup:
     barmanObjectStore:
       destinationPath: s3://ahey-chat-db-988182270694-ap-south-1-an/ahey-chat-db
+      # serverName differentiates this cluster's WAL archive from the original.
+      # Original used 'ahey-chat-db'; using 'ahey-chat-db-v2' so the archive check
+      # sees an empty path and allows recovery bootstrap to proceed.
+      serverName: ahey-chat-db-v2
       s3Credentials:
         accessKeyId:
           name: ahey-chat-cnpg-s3-creds
@@ -63,6 +67,9 @@ spec:
     - name: ahey-chat-db-s3
       barmanObjectStore:
         destinationPath: s3://ahey-chat-db-988182270694-ap-south-1-an/ahey-chat-db
+        # serverName must match the name used when the original backup was created.
+        # The old cluster wrote WALs/basebackups under the name 'ahey-chat-db'.
+        serverName: ahey-chat-db
         s3Credentials:
           accessKeyId:
             name: ahey-chat-cnpg-s3-creds
