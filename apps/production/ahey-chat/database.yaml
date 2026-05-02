@@ -51,36 +51,27 @@ spec:
         immediateCheckpoint: false
     retentionPolicy: "30d"
 
-  # Migration bootstrap: imports data from Neon via pg_dump (microservice mode).
-  # NOTE: After migration is confirmed, replace this entire bootstrap block with:
-  #   bootstrap:
-  #     recovery:
-  #       source: ahey-chat-db-backup
-  # and add a corresponding externalClusters entry pointing to the S3 barmanObjectStore.
-  # Also remove the externalClusters.neon-source block below.
+  # Recover from the latest S3 base backup + WAL replay.
+  # This is the steady-state DR bootstrap: if the cluster is ever deleted,
+  # CNPG will restore from S3 + replay WAL to the latest consistent point.
   bootstrap:
-    initdb:
-      database: ahey_chat
-      owner: ahey_chat
-      secret:
-        name: ahey-chat-db-secret
-      import:
-        type: microservice
-        databases:
-          - ahey_chat
-        source:
-          externalCluster: neon-source
+    recovery:
+      source: ahey-chat-db-s3
 
-  # Neon source cluster for pg_dump import.
-  # Uses the direct (non-pooler) endpoint — the pooler endpoint does not support pg_dump.
-  # Remove after migration is complete.
+  # S3 source for recovery bootstrap — mirrors the backup.barmanObjectStore config.
   externalClusters:
-    - name: neon-source
-      connectionParameters:
-        host: ep-old-art-a1xpse2w.ap-southeast-1.aws.neon.tech
-        user: ahey_chat
-        dbname: ahey_chat
-        sslmode: require
-      password:
-        name: neon-connection-secret
-        key: password
+    - name: ahey-chat-db-s3
+      barmanObjectStore:
+        destinationPath: s3://ahey-chat-db-988182270694-ap-south-1-an/ahey-chat-db
+        s3Credentials:
+          accessKeyId:
+            name: ahey-chat-cnpg-s3-creds
+            key: ACCESS_KEY_ID
+          secretAccessKey:
+            name: ahey-chat-cnpg-s3-creds
+            key: ACCESS_SECRET_KEY
+          region:
+            name: ahey-chat-cnpg-s3-creds
+            key: AWS_DEFAULT_REGION
+        wal:
+          maxParallel: 8
