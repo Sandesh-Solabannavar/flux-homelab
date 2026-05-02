@@ -1,0 +1,43 @@
+---
+# Long-running BullMQ workers — process email-verify and email-collide queues
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email-workers
+  namespace: data-scraper
+  labels:
+    app: email-workers
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: email-workers
+  template:
+    metadata:
+      labels:
+        app: email-workers
+    spec:
+      containers:
+        - name: email-workers
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:8a499e7
+          imagePullPolicy: IfNotPresent
+          command: ["node", "dist/scripts/email-pipeline.js", "--workers"]
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secret
+                  key: redis-password
+            - name: REDIS_URL
+              value: "redis://:$(REDIS_PASSWORD)@redis-replication.data-scraper.svc.cluster.local:6379"
+          envFrom:
+            - secretRef:
+                name: data-scraper-secrets
+          resources:
+            requests:
+              memory: "256Mi"
+            limits:
+              memory: "512Mi"
+      imagePullSecrets:
+        - name: ghcr-login-secret
+      restartPolicy: Always

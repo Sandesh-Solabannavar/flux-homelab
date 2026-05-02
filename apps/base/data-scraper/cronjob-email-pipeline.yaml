@@ -1,0 +1,182 @@
+---
+# Phase: audit — daily at 07:00 UTC, sends Telegram summary
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: email-audit
+  namespace: data-scraper
+spec:
+  schedule: "0 7 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: email-audit
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:8a499e7
+              imagePullPolicy: IfNotPresent
+              command:
+                ["node", "dist/scripts/email-pipeline.js", "--phase=audit"]
+              env:
+                - name: REDIS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: redis-secret
+                      key: redis-password
+                - name: REDIS_URL
+                  value: "redis://:$(REDIS_PASSWORD)@redis-replication.data-scraper.svc.cluster.local:6379"
+              envFrom:
+                - secretRef:
+                    name: data-scraper-secrets
+              resources:
+                requests:
+                  memory: "128Mi"
+                limits:
+                  memory: "256Mi"
+          restartPolicy: OnFailure
+          imagePullSecrets:
+            - name: ghcr-login-secret
+
+---
+# Phase: direct — every 6 hours, mines emails already present in ZoomInfo DB
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: email-pipeline-direct
+  namespace: data-scraper
+spec:
+  schedule: "0 */6 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: email-pipeline-direct
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:8a499e7
+              imagePullPolicy: IfNotPresent
+              command:
+                [
+                  "node",
+                  "dist/scripts/email-pipeline.js",
+                  "--phase=direct",
+                  "--limit=10000",
+                ]
+              env:
+                - name: REDIS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: redis-secret
+                      key: redis-password
+                - name: REDIS_URL
+                  value: "redis://:$(REDIS_PASSWORD)@redis-replication.data-scraper.svc.cluster.local:6379"
+              envFrom:
+                - secretRef:
+                    name: data-scraper-secrets
+              resources:
+                requests:
+                  memory: "128Mi"
+                limits:
+                  memory: "256Mi"
+          restartPolicy: OnFailure
+          imagePullSecrets:
+            - name: ghcr-login-secret
+
+---
+# Phase: bootstrap — every Sunday at 02:00 UTC, seeds domain patterns via Hunter API
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: email-pipeline-bootstrap
+  namespace: data-scraper
+spec:
+  schedule: "0 2 * * 0"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: email-pipeline-bootstrap
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:8a499e7
+              imagePullPolicy: IfNotPresent
+              command:
+                [
+                  "node",
+                  "dist/scripts/email-pipeline.js",
+                  "--phase=bootstrap",
+                  "--limit=5000",
+                ]
+              env:
+                - name: REDIS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: redis-secret
+                      key: redis-password
+                - name: REDIS_URL
+                  value: "redis://:$(REDIS_PASSWORD)@redis-replication.data-scraper.svc.cluster.local:6379"
+              envFrom:
+                - secretRef:
+                    name: data-scraper-secrets
+              resources:
+                requests:
+                  memory: "128Mi"
+                limits:
+                  memory: "256Mi"
+          restartPolicy: OnFailure
+          imagePullSecrets:
+            - name: ghcr-login-secret
+
+---
+# Phase: generate — every 4 hours, enqueues email generation for persons with no email
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: email-pipeline-generate
+  namespace: data-scraper
+spec:
+  schedule: "0 */4 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: email-pipeline-generate
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:8a499e7
+              imagePullPolicy: IfNotPresent
+              command:
+                [
+                  "node",
+                  "dist/scripts/email-pipeline.js",
+                  "--phase=generate",
+                  "--limit=5000",
+                ]
+              env:
+                - name: REDIS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: redis-secret
+                      key: redis-password
+                - name: REDIS_URL
+                  value: "redis://:$(REDIS_PASSWORD)@redis-replication.data-scraper.svc.cluster.local:6379"
+              envFrom:
+                - secretRef:
+                    name: data-scraper-secrets
+              resources:
+                requests:
+                  memory: "128Mi"
+                limits:
+                  memory: "256Mi"
+          restartPolicy: OnFailure
+          imagePullSecrets:
+            - name: ghcr-login-secret

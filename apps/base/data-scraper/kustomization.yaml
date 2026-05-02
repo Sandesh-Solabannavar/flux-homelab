@@ -12,3 +12,6 @@ resources:
   # - deployment-apollo.yaml
   # - deployment-copy-by-industry.yaml
   # - deployment-copy-indprd.yaml
+  - redis.yaml
+  - deployment-email-workers.yaml
+  - cronjob-email-pipeline.yaml
