@@ -28,7 +28,7 @@ spec:
     letsEncrypt:
       email: sandysandesh28@gmail.com
       ingress:
-        class: traefik-external
+        class: traefik
   valuesFrom:
     - kind: Secret
       name: rancher-bootstrap-secret
