@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: deployment-apollo-asc
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:56cae00
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:0227913
           imagePullPolicy: IfNotPresent # Important for using remote images
           ports:
             - containerPort: 3000

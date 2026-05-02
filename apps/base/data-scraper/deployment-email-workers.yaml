@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: email-workers
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:56cae00
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:0227913
           imagePullPolicy: IfNotPresent
           command: ["node", "dist/scripts/email-pipeline.js", "--workers"]
           env:
