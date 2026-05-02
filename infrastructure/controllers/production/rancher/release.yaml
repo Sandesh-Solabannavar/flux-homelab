@@ -1,0 +1,36 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: rancher
+  namespace: cattle-system
+spec:
+  releaseName: rancher
+  interval: 10m
+  targetNamespace: cattle-system
+  dependsOn:
+    - name: cert-manager
+      namespace: cert-manager
+  chart:
+    spec:
+      chart: rancher
+      version: 2.10.x
+      sourceRef:
+        kind: HelmRepository
+        name: rancher-stable
+        namespace: flux-system
+      interval: 12h
+  values:
+    hostname: rancher.isandeshsol.com
+    replicas: 1
+    ingress:
+      tls:
+        source: letsEncrypt
+    letsEncrypt:
+      email: sandysandesh28@gmail.com
+      ingress:
+        class: traefik-external
+  valuesFrom:
+    - kind: Secret
+      name: rancher-bootstrap-secret
+      valuesKey: bootstrapPassword
+      targetPath: bootstrapPassword
