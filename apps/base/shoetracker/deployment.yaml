@@ -54,10 +54,8 @@ spec:
                 name: shoetracker-server-secret
           resources:
             requests:
-              cpu: "100m"
               memory: "512Mi"
             limits:
-              cpu: "200m"
               memory: "1Gi"
 ---
 apiVersion: v1

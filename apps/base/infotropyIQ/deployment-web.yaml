@@ -25,10 +25,8 @@ spec:
           image: 192.168.1.11:5000/infotropyiq-web:latest
           resources:
             requests:
-              cpu: "100m"
               memory: "128Mi"
             limits:
-              cpu: "250m"
               memory: "256Mi"
           env:
             - name: BACKEND_URL

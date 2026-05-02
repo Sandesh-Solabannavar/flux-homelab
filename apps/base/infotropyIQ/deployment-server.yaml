@@ -25,10 +25,8 @@ spec:
           image: 192.168.1.11:5000/infotropyiq-server:latest
           resources:
             requests:
-              cpu: "500m"
               memory: "128Mi"
             limits:
-              cpu: "500m"
               memory: "512Mi"
           envFrom:
             - secretRef:
