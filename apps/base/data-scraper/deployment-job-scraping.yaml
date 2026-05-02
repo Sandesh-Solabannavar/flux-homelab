@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: deployment-job-scraping-asc
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:2ad7d25
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:a8c64a7
           imagePullPolicy: IfNotPresent # Important for using remote images
           ports:
             - containerPort: 3000
@@ -58,7 +58,7 @@ spec:
     spec:
       containers:
         - name: deployment-job-scraping-desc
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:2ad7d25
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:a8c64a7
           imagePullPolicy: IfNotPresent # Important for using remote images
           ports:
             - containerPort: 3000
