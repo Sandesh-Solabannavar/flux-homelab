@@ -31,6 +31,10 @@ spec:
   backup:
     barmanObjectStore:
       destinationPath: s3://interview-pilot-db-988182270694-ap-south-1/interview-pilot-db
+      # serverName differentiates this cluster's WAL archive from the original.
+      # Original used 'interview-pilot-db'; using 'interview-pilot-db-v2' so the archive check
+      # sees an empty path and allows recovery bootstrap to proceed.
+      serverName: interview-pilot-db-v2
       s3Credentials:
         accessKeyId:
           name: interview-pilot-cnpg-s3-creds
@@ -49,29 +53,28 @@ spec:
         immediateCheckpoint: false
     retentionPolicy: "30d"
 
-  # Migration bootstrap: imports the interview-pilot database from Neon via pg_dump/pg_restore.
-  # After the first S3 base backup completes, replace this with bootstrap.recovery
-  # (see apps/production/ahey-chat/database.yaml for the steady-state pattern).
+  # Steady-state DR bootstrap: if the cluster is ever deleted,
+  # CNPG will restore from S3 + replay WAL to the latest consistent point.
   bootstrap:
-    initdb:
-      database: interview-pilot
-      owner: interview-pilot
-      secret:
-        name: interview-pilot-db-secret
-      import:
-        type: microservice
-        databases:
-          - interview-pilot
-        source:
-          externalCluster: neon-source
+    recovery:
+      source: interview-pilot-db-s3
 
+  # S3 source for recovery bootstrap.
   externalClusters:
-    - name: neon-source
-      connectionParameters:
-        host: ep-noisy-hall-ai71n2fy.c-4.us-east-1.aws.neon.tech
-        user: interview-pilot
-        dbname: interview-pilot
-        sslmode: require
-      password:
-        name: neon-interview-pilot-connection-secret
-        key: password
+    - name: interview-pilot-db-s3
+      barmanObjectStore:
+        destinationPath: s3://interview-pilot-db-988182270694-ap-south-1/interview-pilot-db
+        # serverName must match the name used when the original backup was created.
+        serverName: interview-pilot-db
+        s3Credentials:
+          accessKeyId:
+            name: interview-pilot-cnpg-s3-creds
+            key: ACCESS_KEY_ID
+          secretAccessKey:
+            name: interview-pilot-cnpg-s3-creds
+            key: ACCESS_SECRET_KEY
+          region:
+            name: interview-pilot-cnpg-s3-creds
+            key: AWS_DEFAULT_REGION
+        wal:
+          maxParallel: 8

@@ -31,6 +31,10 @@ spec:
   backup:
     barmanObjectStore:
       destinationPath: s3://shoetracker-db-988182270694-ap-south-1/shoetracker-db
+      # serverName differentiates this cluster's WAL archive from the original.
+      # Original used 'shoetracker-db'; using 'shoetracker-db-v2' so the archive check
+      # sees an empty path and allows recovery bootstrap to proceed.
+      serverName: shoetracker-db-v2
       s3Credentials:
         accessKeyId:
           name: shoetracker-cnpg-s3-creds
@@ -49,29 +53,28 @@ spec:
         immediateCheckpoint: false
     retentionPolicy: "30d"
 
-  # Migration bootstrap: imports the shoe_tracker database from Neon via pg_dump/pg_restore.
-  # After the first S3 base backup completes, replace this with bootstrap.recovery
-  # (see apps/production/ahey-chat/database.yaml for the steady-state pattern).
+  # Steady-state DR bootstrap: if the cluster is ever deleted,
+  # CNPG will restore from S3 + replay WAL to the latest consistent point.
   bootstrap:
-    initdb:
-      database: shoe_tracker
-      owner: shoe_tracker
-      secret:
-        name: shoetracker-db-secret
-      import:
-        type: microservice
-        databases:
-          - shoe_tracker
-        source:
-          externalCluster: neon-source
+    recovery:
+      source: shoetracker-db-s3
 
+  # S3 source for recovery bootstrap.
   externalClusters:
-    - name: neon-source
-      connectionParameters:
-        host: ep-weathered-boat-a4r7mhg2.us-east-1.aws.neon.tech
-        user: shoe_tracker
-        dbname: shoe_tracker
-        sslmode: require
-      password:
-        name: neon-shoetracker-connection-secret
-        key: password
+    - name: shoetracker-db-s3
+      barmanObjectStore:
+        destinationPath: s3://shoetracker-db-988182270694-ap-south-1/shoetracker-db
+        # serverName must match the name used when the original backup was created.
+        serverName: shoetracker-db
+        s3Credentials:
+          accessKeyId:
+            name: shoetracker-cnpg-s3-creds
+            key: ACCESS_KEY_ID
+          secretAccessKey:
+            name: shoetracker-cnpg-s3-creds
+            key: ACCESS_SECRET_KEY
+          region:
+            name: shoetracker-cnpg-s3-creds
+            key: AWS_DEFAULT_REGION
+        wal:
+          maxParallel: 8
