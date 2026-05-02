@@ -23,7 +23,6 @@ spec:
   resources:
     requests:
       memory: 200Mi
-      cpu: 100m
 
   # S3 WAL archiving + base backup via barman-cloud.
   # Provides continuous WAL archiving and point-in-time recovery (PITR) for the last 30 days.
