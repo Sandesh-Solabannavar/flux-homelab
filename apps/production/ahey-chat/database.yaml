@@ -6,7 +6,11 @@ metadata:
 spec:
   description: Postgres cluster for the ahey-chat application
   imageName: quay.io/enterprisedb/postgresql:17.7
-  instances: 3
+  # 1 instance: nodes are CPU-request-saturated (100% on all 3 nodes).
+  # CNPG hardcodes 100m CPU request on its init container per pod — cannot be removed.
+  # Data safety is provided by continuous WAL archiving + daily S3 base backups (PITR).
+  # Increase to 3 when CPU request headroom is available.
+  instances: 1
 
   monitoring:
     enablePodMonitor: true
