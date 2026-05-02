@@ -24,11 +24,10 @@ spec:
     replicas: 1
     ingress:
       tls:
-        source: letsEncrypt
-    letsEncrypt:
-      email: sandysandesh28@gmail.com
-      ingress:
-        class: traefik
+        source: rancher
+    service:
+      type: LoadBalancer
+      loadBalancerIP: 192.168.1.82
   valuesFrom:
     - kind: Secret
       name: rancher-bootstrap-secret
