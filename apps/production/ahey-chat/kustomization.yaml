@@ -3,5 +3,8 @@ kind: Kustomization
 namespace: ahey-chat
 resources:
   - ../../base/ahey-chat
+  - secrets.yaml
+  - database.yaml
+  - scheduled-backup.yaml
   # - cloudflare-stg.yaml
   - cloudflare.yaml

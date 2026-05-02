@@ -1,0 +1,83 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: ahey-chat-db
+  namespace: ahey-chat
+spec:
+  description: Postgres cluster for the ahey-chat application
+  imageName: quay.io/enterprisedb/postgresql:17.7
+  instances: 3
+
+  monitoring:
+    enablePodMonitor: true
+
+  inheritedMetadata:
+    labels:
+      app: ahey-chat-database
+      policy-type: "database"
+
+  storage:
+    storageClass: local-path
+    size: 5Gi
+
+  resources:
+    requests:
+      memory: 200Mi
+      cpu: 100m
+
+  # S3 WAL archiving + base backup via barman-cloud.
+  # Provides continuous WAL archiving and point-in-time recovery (PITR) for the last 30 days.
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://ahey-chat-db-988182270694-ap-south-1-an/ahey-chat-db
+      s3Credentials:
+        accessKeyId:
+          name: ahey-chat-cnpg-s3-creds
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: ahey-chat-cnpg-s3-creds
+          key: ACCESS_SECRET_KEY
+        region:
+          name: ahey-chat-cnpg-s3-creds
+          key: AWS_DEFAULT_REGION
+      wal:
+        compression: gzip
+        maxParallel: 8
+      data:
+        compression: gzip
+        immediateCheckpoint: false
+    retentionPolicy: "30d"
+
+  # Migration bootstrap: imports data from Neon via pg_dump (microservice mode).
+  # NOTE: After migration is confirmed, replace this entire bootstrap block with:
+  #   bootstrap:
+  #     recovery:
+  #       source: ahey-chat-db-backup
+  # and add a corresponding externalClusters entry pointing to the S3 barmanObjectStore.
+  # Also remove the externalClusters.neon-source block below.
+  bootstrap:
+    initdb:
+      database: ahey_chat
+      owner: ahey_chat
+      secret:
+        name: ahey-chat-db-secret
+      import:
+        type: microservice
+        databases:
+          - ahey_chat
+        source:
+          externalCluster: neon-source
+
+  # Neon source cluster for pg_dump import.
+  # Uses the direct (non-pooler) endpoint — the pooler endpoint does not support pg_dump.
+  # Remove after migration is complete.
+  externalClusters:
+    - name: neon-source
+      connectionParameters:
+        host: ep-old-art-a1xpse2w.ap-southeast-1.aws.neon.tech
+        user: ahey_chat
+        dbname: ahey_chat
+        sslmode: require
+      password:
+        name: neon-connection-secret
+        key: password
