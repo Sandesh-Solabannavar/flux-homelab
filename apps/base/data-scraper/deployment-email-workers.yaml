@@ -8,7 +8,7 @@ metadata:
   labels:
     app: email-workers
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: email-workers
@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: email-workers
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:0227913
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:2f81d5b
           imagePullPolicy: IfNotPresent
           command: ["node", "dist/scripts/email-pipeline.js", "--workers"]
           env:
