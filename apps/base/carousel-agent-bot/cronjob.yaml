@@ -21,7 +21,7 @@ spec:
           containers:
             - name: pipeline
               image: 192.168.1.11:5000/carousel-agent:latest
-              imagePullPolicy: IfNotPresent
+              imagePullPolicy: Always
               command: ["node", "dist/pipeline.js"]
               envFrom:
                 - secretRef:
