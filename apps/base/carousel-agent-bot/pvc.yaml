@@ -1,0 +1,16 @@
+# Shared storage between the approval-bot Deployment and the pipeline CronJob.
+# Requires a StorageClass that supports ReadWriteMany (e.g. NFS, Azure Files,
+# GCP Filestore, EFS). If your cluster only supports ReadWriteOnce, use a
+# single-node setup or replace with an external queue (Redis, S3, etc.).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: carousel-agent-pvc
+  namespace: carousel-agent
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: local-path # uncomment and set to your RWX storage class

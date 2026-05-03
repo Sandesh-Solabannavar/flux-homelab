@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: carousel-approval-bot
+  namespace: carousel-agent
+  labels:
+    app: carousel-approval-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: carousel-approval-bot
+  template:
+    metadata:
+      labels:
+        app: carousel-approval-bot
+    spec:
+      containers:
+        - name: approval-bot
+          image: 192.168.1.11:5000/carousel-agent:latest
+          imagePullPolicy: IfNotPresent
+          command: ["node", "dist/index.js"]
+          envFrom:
+            - secretRef:
+                name: carousel-agent-secret
+          volumeMounts:
+            - name: carousel-data
+              mountPath: /app/pending
+              subPath: pending
+            - name: carousel-data
+              mountPath: /app/output
+              subPath: output
+          resources:
+            requests:
+              memory: "128Mi"
+            limits:
+              memory: "512Mi"
+      volumes:
+        - name: carousel-data
+          persistentVolumeClaim:
+            claimName: carousel-agent-pvc

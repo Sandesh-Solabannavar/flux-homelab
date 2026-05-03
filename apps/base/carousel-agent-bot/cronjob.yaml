@@ -1,0 +1,44 @@
+# Daily pipeline: generates a coffee carousel and sends it to Telegram for approval.
+# Default schedule: 11:00 UTC (7 AM Eastern). Adjust to your preferred time.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: carousel-pipeline
+  namespace: carousel-agent
+spec:
+  schedule: "0 11 * * *"
+  timeZone: "Asia/Kolkata" # requires k8s >= 1.27 with CronJobTimeZone gate enabled
+  concurrencyPolicy: Forbid # skip if a previous run is still in progress
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      # Retry once on failure before marking the job as failed
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: pipeline
+              image: 192.168.1.11:5000/carousel-agent:latest
+              imagePullPolicy: IfNotPresent
+              command: ["node", "dist/pipeline.js"]
+              envFrom:
+                - secretRef:
+                    name: carousel-agent-secret
+              volumeMounts:
+                - name: carousel-data
+                  mountPath: /app/pending
+                  subPath: pending
+                - name: carousel-data
+                  mountPath: /app/output
+                  subPath: output
+              resources:
+                requests:
+                memory: "128Mi"
+              limits:
+                memory: "512Mi"
+          volumes:
+            - name: carousel-data
+              persistentVolumeClaim:
+                claimName: carousel-agent-pvc

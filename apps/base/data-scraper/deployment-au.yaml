@@ -84,3 +84,18 @@ spec:
       imagePullSecrets:
         - name: ghcr-login-secret
 ---
+# Priority	Code	Country	Why
+# 🔴 High	NL	Netherlands	Large B2B market, Amsterdam tech scene
+# 🔴 High	FR	France	2nd largest European economy
+# 🔴 High	ES	Spain	Major EU economy, growing tech scene
+# 🔴 High	IT	Italy	3rd largest European economy
+# 🟡 Medium	SE	Sweden	Nordic tech hub (Spotify, Klarna)
+# 🟡 Medium	BR	Brazil	Largest Latin American economy
+# 🟡 Medium	NZ	New Zealand	Similar profile to AU (already scraped)
+# 🟡 Medium	MY	Malaysia	Southeast Asian market (adjacent to SG)
+# 🟡 Medium	PH	Philippines	Large BPO/outsourcing market
+# 🟡 Medium	NO	Norway	High-income Nordic market
+# 🟡 Medium	CH	Switzerland	Highest GDP per capita in Europe
+# 🟢 Lower	PL	Poland	Fast-growing EU tech talent pool
+# 🟢 Lower	UA	Ukraine	Large tech talent pool
+# 🟢 Lower	RO	Romania	Growing Eastern EU tech hub
