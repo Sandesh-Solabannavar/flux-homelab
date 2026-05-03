@@ -6,7 +6,7 @@ metadata:
   name: carousel-pipeline
   namespace: carousel-agent
 spec:
-  schedule: "0 11 * * *"
+  schedule: "0 11 * * 1,3,5"
   timeZone: "Asia/Kolkata" # requires k8s >= 1.27 with CronJobTimeZone gate enabled
   concurrencyPolicy: Forbid # skip if a previous run is still in progress
   successfulJobsHistoryLimit: 3
