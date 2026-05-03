@@ -6,3 +6,4 @@ resources:
   - pvc.yaml
   - deployment.yaml
   - cronjob.yaml
+  - service.yaml
