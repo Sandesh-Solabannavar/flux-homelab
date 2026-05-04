@@ -4,6 +4,6 @@ namespace: carousel-agent
 resources:
   - namespace.yaml
   - pvc.yaml
-  - deployment.yaml
+  # - deployment.yaml
   - cronjob.yaml
   - service.yaml
