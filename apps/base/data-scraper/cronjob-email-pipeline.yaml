@@ -135,14 +135,14 @@ spec:
             - name: ghcr-login-secret
 
 ---
-# Phase: generate — every 4 hours, enqueues email generation for persons with no email
+# Phase: generate — every 12 hours, enqueues email generation for persons with no email
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: email-pipeline-generate
   namespace: data-scraper
 spec:
-  schedule: "0 */4 * * *"
+  schedule: "0 */12 * * *"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
