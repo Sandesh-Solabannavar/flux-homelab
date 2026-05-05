@@ -17,13 +17,13 @@ spec:
     spec:
       containers:
         - name: data-scraper-germany
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:0227913
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:0c64be0
           imagePullPolicy: IfNotPresent # Important for using remote images
           ports:
             - containerPort: 3000
           env:
             - name: COUNTRY
-              value: BE
+              value: FR
             - name: METHOD
               value: main
             - name: ORDER
