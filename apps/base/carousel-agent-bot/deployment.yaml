@@ -35,9 +35,13 @@ spec:
               subPath: output
           resources:
             requests:
-              memory: "128Mi"
-            limits:
               memory: "512Mi"
+              cpu: "250m"
+            limits:
+              # Remotion renders MP4s via Chromium+ffmpeg in this pod;
+              # 4Gi RAM and 2 vCPU prevent OOM during /video commands.
+              memory: "4Gi"
+              cpu: "2000m"
       volumes:
         - name: carousel-data
           persistentVolumeClaim:
