@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: data-scraper-dashboard
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:2a3b2fc
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:28a0fbc
           imagePullPolicy: IfNotPresent # Important for using remote images
           ports:
             - name: http
