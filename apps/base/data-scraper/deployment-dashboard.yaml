@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-scraper-dashboard
+  namespace: data-scraper
+  labels:
+    app: data-scraper-dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-scraper-dashboard
+  template:
+    metadata:
+      labels:
+        app: data-scraper-dashboard
+    spec:
+      containers:
+        - name: data-scraper-dashboard
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:f8e2a4b
+          imagePullPolicy: IfNotPresent # Important for using remote images
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          env:
+            - name: METHOD
+              value: dashboard
+            - name: DASHBOARD_PORT
+              value: "3000"
+            - name: DASHBOARD_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: data-scraper-secrets
+                  key: DASHBOARD_AUTH_TOKEN
+                  optional: true
+          envFrom:
+            - secretRef:
+                name: data-scraper-secrets
+          resources:
+            requests:
+              cpu: 100m
+              memory: "128Mi"
+            limits:
+              cpu: 500m
+              memory: "512Mi"
+      imagePullSecrets:
+        - name: ghcr-login-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: scraper-dashboard
+  namespace: data-scraper
+  labels:
+    app: scraper-dashboard
+spec:
+  selector:
+    app: scraper-dashboard
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
+      protocol: TCP
+  type: ClusterIP

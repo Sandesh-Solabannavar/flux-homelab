@@ -7,6 +7,7 @@ resources:
   # - deployment-us.yaml
   - deployment-au.yaml
   - deployment-germany.yaml
+  - deployment-dashboard.yaml
   # - deployment-refresh.yaml
   # - deployment-job-scraping.yaml
   # - deployment-apollo.yaml
