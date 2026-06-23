@@ -50,13 +50,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: scraper-dashboard
+  name: data-scraper-dashboard
   namespace: data-scraper
   labels:
-    app: scraper-dashboard
+    app: data-scraper-dashboard
 spec:
   selector:
-    app: scraper-dashboard
+    app: data-scraper-dashboard
   ports:
     - name: http
       port: 3000
