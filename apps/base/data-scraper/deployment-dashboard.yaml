@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: data-scraper-dashboard
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:2c053a0
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:9dc42ca
           imagePullPolicy: IfNotPresent # Important for using remote images
           ports:
             - name: http
@@ -63,3 +63,36 @@ spec:
       targetPort: 3000
       protocol: TCP
   type: LoadBalancer
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: dashboard-snapshot
+  namespace: data-scraper
+spec:
+  schedule: "0 6 * * *" # daily at 6am
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 3
+  successfulJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          imagePullSecrets:
+            - name: ghcr-login-secret
+          containers:
+            - name: snapshot
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:9dc42ca
+              command: ["node", "dist/scripts/dashboard-snapshot.js"]
+              env:
+                - name: REDIS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: redis-secret
+                      key: redis-password
+                - name: REDIS_URL
+                  value: "redis://:$(REDIS_PASSWORD)@redis-replication.data-scraper.svc.cluster.local:6379"
+              envFrom:
+                - secretRef:
+                    name: data-scraper-secrets
