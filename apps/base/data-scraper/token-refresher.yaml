@@ -81,7 +81,7 @@ spec:
           containers:
             - name: token-refresher
               # Reuses the same scraper image — no extra build needed
-              image: 192.168.1.11:5000/scraper:latest
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:2c053a0
               imagePullPolicy: Always
               # Override the default CMD to run the refresh script
               command: ["node", "dist/scripts/refresh-zi-token.js"]
@@ -95,3 +95,5 @@ spec:
                 limits:
                   cpu: "200m"
                   memory: "128Mi"
+        imagePullSecrets:
+          - name: ghcr-login-secret
