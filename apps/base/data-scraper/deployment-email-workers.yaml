@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: email-workers
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:2c053a0
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:9209d4e
           imagePullPolicy: IfNotPresent
           command: ["node", "dist/scripts/email-pipeline.js", "--workers"]
           env:
@@ -38,6 +38,7 @@ spec:
               memory: "256Mi"
             limits:
               memory: "512Mi"
+              cpu: "100m"
       imagePullSecrets:
         - name: ghcr-login-secret
       restartPolicy: Always

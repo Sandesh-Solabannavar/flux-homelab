@@ -4,9 +4,9 @@ namespace: infotropyiq
 resources:
   - namespace.yaml
   - token-refresher.yaml
-  # - deployment-au.yaml
-  # - deployment-germany.yaml
-  # - deployment-dashboard.yaml
+  - deployment-au.yaml
+  - deployment-germany.yaml
+  - deployment-dashboard.yaml
   - redis.yaml
-  # - deployment-email-workers.yaml
-  # - cronjob-email-pipeline.yaml
+  - deployment-email-workers.yaml
+  - cronjob-email-pipeline.yaml
