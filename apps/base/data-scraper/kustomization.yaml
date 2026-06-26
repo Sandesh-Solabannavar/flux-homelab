@@ -6,7 +6,7 @@ resources:
   - token-refresher.yaml
   - deployment-au.yaml
   - deployment-germany.yaml
-  # - deployment-dashboard.yaml
+  - deployment-dashboard.yaml
   - redis.yaml
   - deployment-email-workers.yaml
   - cronjob-email-pipeline.yaml
