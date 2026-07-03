@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: data-scraper-dashboard
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:088f154
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:ed4e8ba
           imagePullPolicy: IfNotPresent # Important for using remote images
           ports:
             - name: http
@@ -83,7 +83,7 @@ spec:
             - name: ghcr-login-secret
           containers:
             - name: snapshot
-              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:088f154
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:ed4e8ba
               command: ["node", "dist/scripts/dashboard-snapshot.js"]
               env:
                 - name: REDIS_PASSWORD
