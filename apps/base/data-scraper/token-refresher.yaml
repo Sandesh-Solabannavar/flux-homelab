@@ -58,8 +58,8 @@ roleRef:
   name: token-refresher
 
 ---
-# 4. CronJob — runs every 23 hours
-#    Schedule: "0 */23 * * *"  → runs at minute 0, every 23rd hour
+# 4. CronJob — runs every day at 5:00 AM
+#    Schedule: "0 5 * * *"  → runs at minute 0, hour 5
 #    This ensures the token is refreshed well before the 24-hour expiry.
 apiVersion: batch/v1
 kind: CronJob
@@ -67,7 +67,7 @@ metadata:
   name: token-refresher
   namespace: data-scraper
 spec:
-  schedule: "0 */23 * * *"
+  schedule: "0 5 * * *"
   concurrencyPolicy: Forbid # don't overlap if a job is still running
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
