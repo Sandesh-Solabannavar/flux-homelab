@@ -83,7 +83,7 @@ spec:
           containers:
             - name: token-refresher
               # Reuses the same scraper image — no extra build needed
-              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:34ac54a
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:9c03574
               imagePullPolicy: Always
               # Override the default CMD to run the refresh script
               command: ["node", "dist/scripts/refresh-zi-token.js"]
