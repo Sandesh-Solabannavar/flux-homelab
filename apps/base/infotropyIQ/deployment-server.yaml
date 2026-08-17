@@ -36,8 +36,6 @@ spec:
               value: "https://stg-app.infotropyiq.com"
             - name: NODE_ENV
               value: "production"
-            - name: POLAR_SUCCESS_URL
-              value: "https://stg-app.infotropyiq.com/success?checkout_id={CHECKOUT_ID}"
             - name: CORS_ORIGIN
               value: "https://stg-app.infotropyiq.com"
             - name: MEILISEARCH_HOST
