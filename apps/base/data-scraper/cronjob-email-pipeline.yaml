@@ -16,7 +16,7 @@ spec:
         spec:
           containers:
             - name: email-audit
-              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:e8bea06
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:c814e20
               imagePullPolicy: IfNotPresent
               command:
                 ["node", "dist/scripts/email-pipeline.js", "--phase=audit"]
@@ -58,7 +58,7 @@ spec:
         spec:
           containers:
             - name: email-pipeline-direct
-              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:e8bea06
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:c814e20
               imagePullPolicy: IfNotPresent
               command:
                 [
@@ -88,14 +88,15 @@ spec:
             - name: ghcr-login-secret
 
 ---
-# Phase: bootstrap — every Sunday at 02:00 UTC, seeds domain patterns via Hunter API
+# Phase: bootstrap — daily at 02:00 UTC, keeps new domain patterns fresh at the same weekly budget
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: email-pipeline-bootstrap
   namespace: data-scraper
 spec:
-  schedule: "0 2 * * 0"
+  schedule: "0 2 * * *"
+  timeZone: "Etc/UTC"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
@@ -105,14 +106,14 @@ spec:
         spec:
           containers:
             - name: email-pipeline-bootstrap
-              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:e8bea06
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:c814e20
               imagePullPolicy: IfNotPresent
               command:
                 [
                   "node",
                   "dist/scripts/email-pipeline.js",
                   "--phase=bootstrap",
-                  "--limit=5000",
+                  "--limit=700",
                 ]
               env:
                 - name: REDIS_PASSWORD
@@ -152,7 +153,7 @@ spec:
         spec:
           containers:
             - name: email-pipeline-generate
-              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:e8bea06
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:c814e20
               imagePullPolicy: IfNotPresent
               command:
                 [
