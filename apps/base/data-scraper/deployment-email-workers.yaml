@@ -42,7 +42,8 @@ spec:
               cpu: "500m"
               memory: "512Mi"
       restartPolicy: Always
-
+      imagePullSecrets:
+        - name: ghcr-login-secret
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -87,7 +88,8 @@ spec:
               cpu: "500m"
               memory: "512Mi"
       restartPolicy: Always
-
+      imagePullSecrets:
+        - name: ghcr-login-secret
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -132,3 +134,5 @@ spec:
               cpu: "500m"
               memory: "512Mi"
       restartPolicy: Always
+      imagePullSecrets:
+        - name: ghcr-login-secret
