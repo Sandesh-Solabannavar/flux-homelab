@@ -113,7 +113,7 @@ spec:
                   "node",
                   "dist/scripts/email-pipeline.js",
                   "--phase=bootstrap",
-                  "--limit=700",
+                  "--limit=5000",
                 ]
               env:
                 - name: REDIS_PASSWORD
