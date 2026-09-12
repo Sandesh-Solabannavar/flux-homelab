@@ -1,28 +1,29 @@
 ---
-# Long-running BullMQ workers — process email-verify and email-collide queues
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: email-workers
+  name: email-bootstrap-workers
   namespace: data-scraper
   labels:
-    app: email-workers
+    app: email-bootstrap-workers
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: email-workers
+      app: email-bootstrap-workers
   template:
     metadata:
       labels:
-        app: email-workers
+        app: email-bootstrap-workers
     spec:
       containers:
-        - name: email-workers
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:150e4a5
+        - name: email-bootstrap-workers
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:e8bea06
           imagePullPolicy: IfNotPresent
           command: ["node", "dist/scripts/email-pipeline.js", "--workers"]
           env:
+            - name: EMAIL_WORKER_QUEUES
+              value: domain-bootstrap
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -35,10 +36,99 @@ spec:
                 name: data-scraper-secrets
           resources:
             requests:
+              cpu: "100m"
               memory: "256Mi"
             limits:
+              cpu: "500m"
               memory: "512Mi"
+      restartPolicy: Always
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email-generate-workers
+  namespace: data-scraper
+  labels:
+    app: email-generate-workers
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: email-generate-workers
+  template:
+    metadata:
+      labels:
+        app: email-generate-workers
+    spec:
+      containers:
+        - name: email-generate-workers
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:e8bea06
+          imagePullPolicy: IfNotPresent
+          command: ["node", "dist/scripts/email-pipeline.js", "--workers"]
+          env:
+            - name: EMAIL_WORKER_QUEUES
+              value: email-generate
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secret
+                  key: redis-password
+            - name: REDIS_URL
+              value: "redis://:$(REDIS_PASSWORD)@redis-replication.data-scraper.svc.cluster.local:6379"
+          envFrom:
+            - secretRef:
+                name: data-scraper-secrets
+          resources:
+            requests:
               cpu: "100m"
-      imagePullSecrets:
-        - name: ghcr-login-secret
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+      restartPolicy: Always
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email-verify-workers
+  namespace: data-scraper
+  labels:
+    app: email-verify-workers
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: email-verify-workers
+  template:
+    metadata:
+      labels:
+        app: email-verify-workers
+    spec:
+      containers:
+        - name: email-verify-workers
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:e8bea06
+          imagePullPolicy: IfNotPresent
+          command: ["node", "dist/scripts/email-pipeline.js", "--workers"]
+          env:
+            - name: EMAIL_WORKER_QUEUES
+              value: email-verify,email-collide
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secret
+                  key: redis-password
+            - name: REDIS_URL
+              value: "redis://:$(REDIS_PASSWORD)@redis-replication.data-scraper.svc.cluster.local:6379"
+          envFrom:
+            - secretRef:
+                name: data-scraper-secrets
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
       restartPolicy: Always
