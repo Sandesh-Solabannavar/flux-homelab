@@ -88,14 +88,14 @@ spec:
             - name: ghcr-login-secret
 
 ---
-# Phase: bootstrap — every 30 minutes, keeps new domain patterns fresh at the same weekly budget
+# Phase: bootstrap — every 1 hour, keeps new domain patterns fresh at the same weekly budget
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: email-pipeline-bootstrap
   namespace: data-scraper
 spec:
-  schedule: "*/30 * * * *"
+  schedule: "0 */1 * * *"
   timeZone: "Etc/UTC"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
