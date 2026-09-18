@@ -63,7 +63,7 @@ roleRef:
 #    Each user owns a separate credentials secret and app secret; refresh tokens are never shared.
 #
 #    Example values (base64 not required in this config block because the refresher expects a JSON payload):
-#    ZI_USER_CONFIGS='[{"name":"au","appSecretName":"zi-app-secret-au","credentialsSecretName":"zi-credentials-au","deploymentName":"data-scraper-au"},{"name":"germany","appSecretName":"zi-app-secret-germany","credentialsSecretName":"zi-credentials-germany","deploymentName":"data-scraper-germany"}]'
+#    ZI_USER_CONFIGS='[{"name":"au","appSecretName":"zi-app-secret-au","credentialsSecretName":"zi-credentials-au","deploymentNames":["data-scraper-au","data-scraper-au-desc"]},{"name":"support","appSecretName":"zi-app-secret-support","credentialsSecretName":"zi-credentials-support","deploymentNames":["data-scraper-shailja"]}]'
 #
 #    Each user credentials secret should hold values like ZI_USERNAME, ZI_PASSWORD, ZI_REFRESH_TOKEN,
 #    ZI_REDIRECT_URI, ZI_TOTP_SECRET, ZI_CLIENT_ID, and ZI_TOKEN_URL.
@@ -76,9 +76,9 @@ type: Opaque
 stringData:
   ZI_USER_CONFIGS: >
     [
-      {"name":"au","appSecretName":"zi-app-secret-au","credentialsSecretName":"zi-credentials-au","deploymentName":"data-scraper-sandesh"},
-      {"name":"ritest","appSecretName":"zi-app-secret-ritest","credentialsSecretName":"zi-credentials-ritest","deploymentName":"data-scraper-ritest"},
-      {"name":"support","appSecretName":"zi-app-secret-support","credentialsSecretName":"zi-credentials-support","deploymentName":"data-scraper-shailja"}
+      {"name":"au","appSecretName":"zi-app-secret-au","credentialsSecretName":"zi-credentials-au","deploymentNames":["data-scraper-au","data-scraper-au-desc","data-scraper-germany"]},
+      {"name":"ritest","appSecretName":"zi-app-secret-ritest","credentialsSecretName":"zi-credentials-ritest","deploymentNames":["data-scraper-ritest","data-scraper-ritest-desc","data-scraper-ritest-new"]},
+      {"name":"support","appSecretName":"zi-app-secret-support","credentialsSecretName":"zi-credentials-support","deploymentNames":["data-scraper-shailja","data-scraper-shailja-desc","data-scraper-shailja-new"]}
     ]
 ---
 # 5. CronJob — runs every day at 5:00 AM
@@ -106,7 +106,7 @@ spec:
           containers:
             - name: token-refresher
               # Reuses the same scraper image — no extra build needed
-              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:e80dd77
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:12591fc
               imagePullPolicy: Always
               # Override the default CMD to run the refresh script
               command: ["node", "dist/scripts/refresh-zi-token.js"]
