@@ -5,8 +5,8 @@ resources:
   - namespace.yaml
   - token-refresher.yaml
   - deployment-sandesh.yaml
-  - deployment-ritest.yaml
-  - deployment-shailja.yaml
+  # - deployment-ritest.yaml
+  # - deployment-shailja.yaml
   - deployment-dashboard.yaml
   - redis.yaml
   - deployment-email-workers.yaml
