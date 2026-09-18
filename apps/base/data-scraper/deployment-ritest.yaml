@@ -23,7 +23,7 @@ spec:
             - containerPort: 3000
           env:
             - name: COUNTRY
-              value: BR
+              value: FR
             - name: METHOD
               value: main
             - name: ORDER
@@ -72,56 +72,7 @@ spec:
             - containerPort: 3000
           env:
             - name: COUNTRY
-              value: BR
-            - name: METHOD
-              value: main
-            - name: ORDER
-              value: desc
-            - name: LIMIT
-              value: "100"
-            - name: ziaccesstoken
-              valueFrom:
-                secretKeyRef:
-                  name: zi-app-secret-ritest
-                  key: ziaccesstoken
-          envFrom:
-            - secretRef:
-                name: data-scraper-secrets
-          resources:
-            requests:
-              memory: "128Mi"
-            limits:
-              memory: "512Mi"
-              cpu: "100m"
-      imagePullSecrets:
-        - name: ghcr-login-secret
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: data-scraper-ritest-new
-  namespace: data-scraper
-  labels:
-    app: data-scraper-ritest-new
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: data-scraper-ritest-new
-  template:
-    metadata:
-      labels:
-        app: data-scraper-ritest-new
-    spec:
-      containers:
-        - name: data-scraper-ritest-new
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:12591fc
-          imagePullPolicy: IfNotPresent # Important for using remote images
-          ports:
-            - containerPort: 3000
-          env:
-            - name: COUNTRY
-              value: BR
+              value: FR
             - name: METHOD
               value: main
             - name: ORDER
