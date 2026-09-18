@@ -30,6 +30,11 @@ spec:
               value: asc
             - name: LIMIT
               value: "100"
+            - name: ziaccesstoken
+              valueFrom:
+                secretKeyRef:
+                  name: zi-app-secret-au
+                  key: ziaccesstoken
           envFrom:
             - secretRef:
                 name: data-scraper-secrets
@@ -74,6 +79,11 @@ spec:
               value: desc
             - name: LIMIT
               value: "100"
+            - name: ziaccesstoken
+              valueFrom:
+                secretKeyRef:
+                  name: zi-app-secret-au
+                  key: ziaccesstoken
           envFrom:
             - secretRef:
                 name: data-scraper-secrets
@@ -86,3 +96,62 @@ spec:
       imagePullSecrets:
         - name: ghcr-login-secret
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-scraper-germany
+  namespace: data-scraper
+  labels:
+    app: data-scraper-germany
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-scraper-germany
+  template:
+    metadata:
+      labels:
+        app: data-scraper-germany
+    spec:
+      containers:
+        - name: data-scraper-germany
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:8619ae1
+          imagePullPolicy: IfNotPresent # Important for using remote images
+          ports:
+            - containerPort: 3000
+          env:
+            - name: COUNTRY
+              value: FR
+            - name: METHOD
+              value: main
+            - name: ORDER
+              value: asc
+            - name: LIMIT
+              value: "100"
+            - name: ziaccesstoken
+              valueFrom:
+                secretKeyRef:
+                  name: zi-app-secret-au
+                  key: ziaccesstoken
+          envFrom:
+            - secretRef:
+                name: data-scraper-secrets
+          resources:
+            requests:
+              memory: "128Mi"
+            limits:
+              memory: "512Mi"
+              cpu: "100m"
+      imagePullSecrets:
+        - name: ghcr-login-secret
+---
+# Priority	Code	Country	Why
+# 🟡 Medium	BR	Brazil	Largest Latin American economy
+# 🟡 Medium	NZ	New Zealand	Similar profile to AU (already scraped)
+# 🟡 Medium	MY	Malaysia	Southeast Asian market (adjacent to SG)
+# 🟡 Medium	PH	Philippines	Large BPO/outsourcing market
+# 🟡 Medium	NO	Norway	High-income Nordic market
+# 🟡 Medium	CH	Switzerland	Highest GDP per capita in Europe
+# 🟢 Lower	PL	Poland	Fast-growing EU tech talent pool
+# 🟢 Lower	UA	Ukraine	Large tech talent pool
+# 🟢 Lower	RO	Romania	Growing Eastern EU tech hub

@@ -1,0 +1,147 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-scraper-shailja
+  namespace: data-scraper
+  labels:
+    app: data-scraper-shailja
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-scraper-shailja
+  template:
+    metadata:
+      labels:
+        app: data-scraper-shailja
+    spec:
+      containers:
+        - name: data-scraper-shailja
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:e80dd77
+          imagePullPolicy: IfNotPresent # Important for using remote images
+          ports:
+            - containerPort: 3000
+          env:
+            - name: COUNTRY
+              value: MY
+            - name: METHOD
+              value: main
+            - name: ORDER
+              value: asc
+            - name: LIMIT
+              value: "100"
+            - name: ziaccesstoken
+              valueFrom:
+                secretKeyRef:
+                  name: zi-app-secret-support
+                  key: ziaccesstoken
+          envFrom:
+            - secretRef:
+                name: data-scraper-secrets
+          resources:
+            requests:
+              memory: "128Mi"
+            limits:
+              memory: "512Mi"
+              cpu: "100m"
+      imagePullSecrets:
+        - name: ghcr-login-secret
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-scraper-shailja-desc
+  namespace: data-scraper
+  labels:
+    app: data-scraper-shailja-desc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-scraper-shailja-desc
+  template:
+    metadata:
+      labels:
+        app: data-scraper-shailja-desc
+    spec:
+      containers:
+        - name: data-scraper-shailja-desc
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:e80dd77
+          imagePullPolicy: IfNotPresent # Important for using remote images
+          ports:
+            - containerPort: 3000
+          env:
+            - name: COUNTRY
+              value: MY
+            - name: METHOD
+              value: main
+            - name: ORDER
+              value: desc
+            - name: LIMIT
+              value: "100"
+            - name: ziaccesstoken
+              valueFrom:
+                secretKeyRef:
+                  name: zi-app-secret-support
+                  key: ziaccesstoken
+          envFrom:
+            - secretRef:
+                name: data-scraper-secrets
+          resources:
+            requests:
+              memory: "128Mi"
+            limits:
+              memory: "512Mi"
+              cpu: "100m"
+      imagePullSecrets:
+        - name: ghcr-login-secret
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-scraper-shailja-new
+  namespace: data-scraper
+  labels:
+    app: data-scraper-shailja-new
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-scraper-shailja-new
+  template:
+    metadata:
+      labels:
+        app: data-scraper-shailja-new
+    spec:
+      containers:
+        - name: data-scraper-shailja-new
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:e80dd77
+          imagePullPolicy: IfNotPresent # Important for using remote images
+          ports:
+            - containerPort: 3000
+          env:
+            - name: COUNTRY
+              value: PH
+            - name: METHOD
+              value: main
+            - name: ORDER
+              value: desc
+            - name: LIMIT
+              value: "100"
+            - name: ziaccesstoken
+              valueFrom:
+                secretKeyRef:
+                  name: zi-app-secret-support
+                  key: ziaccesstoken
+          envFrom:
+            - secretRef:
+                name: data-scraper-secrets
+          resources:
+            requests:
+              memory: "128Mi"
+            limits:
+              memory: "512Mi"
+              cpu: "100m"
+      imagePullSecrets:
+        - name: ghcr-login-secret
+---
