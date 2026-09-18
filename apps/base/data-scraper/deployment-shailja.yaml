@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: data-scraper-shailja
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:12591fc
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:074aede
           imagePullPolicy: IfNotPresent # Important for using remote images
           ports:
             - containerPort: 3000
@@ -30,6 +30,10 @@ spec:
               value: asc
             - name: LIMIT
               value: "100"
+            - name: RATE_LIMIT_MAX_CONCURRENT
+              value: "1"
+            - name: RATE_LIMIT_SHARED_TOKEN_PODS
+              value: "2"
             - name: ziaccesstoken
               valueFrom:
                 secretKeyRef:
@@ -66,7 +70,7 @@ spec:
     spec:
       containers:
         - name: data-scraper-shailja-desc
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:12591fc
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:074aede
           imagePullPolicy: IfNotPresent # Important for using remote images
           ports:
             - containerPort: 3000
@@ -79,6 +83,10 @@ spec:
               value: desc
             - name: LIMIT
               value: "100"
+            - name: RATE_LIMIT_MAX_CONCURRENT
+              value: "1"
+            - name: RATE_LIMIT_SHARED_TOKEN_PODS
+              value: "2"
             - name: ziaccesstoken
               valueFrom:
                 secretKeyRef:
