@@ -58,7 +58,30 @@ roleRef:
   name: token-refresher
 
 ---
-# 4. CronJob — runs every day at 5:00 AM
+# 4. Refresher config secret
+#    Tells the script which users to process and which secret/deployment belongs to each one.
+#    Each user owns a separate credentials secret and app secret; refresh tokens are never shared.
+#
+#    Example values (base64 not required in this config block because the refresher expects a JSON payload):
+#    ZI_USER_CONFIGS='[{"name":"au","appSecretName":"zi-app-secret-au","credentialsSecretName":"zi-credentials-au","deploymentName":"data-scraper-au"},{"name":"germany","appSecretName":"zi-app-secret-germany","credentialsSecretName":"zi-credentials-germany","deploymentName":"data-scraper-germany"}]'
+#
+#    Each user credentials secret should hold values like ZI_USERNAME, ZI_PASSWORD, ZI_REFRESH_TOKEN,
+#    ZI_REDIRECT_URI, ZI_TOTP_SECRET, ZI_CLIENT_ID, and ZI_TOKEN_URL.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: zi-refresher-config
+  namespace: data-scraper
+type: Opaque
+stringData:
+  ZI_USER_CONFIGS: >
+    [
+      {"name":"au","appSecretName":"zi-app-secret-au","credentialsSecretName":"zi-credentials-au","deploymentName":"data-scraper-sandesh"},
+      {"name":"ritest","appSecretName":"zi-app-secret-ritest","credentialsSecretName":"zi-credentials-ritest","deploymentName":"data-scraper-ritest"},
+      {"name":"support","appSecretName":"zi-app-secret-support","credentialsSecretName":"zi-credentials-support","deploymentName":"data-scraper-shailja"}
+    ]
+---
+# 5. CronJob — runs every day at 5:00 AM
 #    Schedule: "0 5 * * *"  → runs at minute 0, hour 5
 #    This ensures the token is refreshed well before the 24-hour expiry.
 apiVersion: batch/v1
@@ -83,13 +106,13 @@ spec:
           containers:
             - name: token-refresher
               # Reuses the same scraper image — no extra build needed
-              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:9c03574
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:e80dd77
               imagePullPolicy: Always
               # Override the default CMD to run the refresh script
               command: ["node", "dist/scripts/refresh-zi-token.js"]
               envFrom:
                 - secretRef:
-                    name: zi-credentials
+                    name: zi-refresher-config
               resources:
                 requests:
                   cpu: "50m"
