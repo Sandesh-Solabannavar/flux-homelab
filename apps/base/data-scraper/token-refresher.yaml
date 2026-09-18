@@ -76,9 +76,9 @@ type: Opaque
 stringData:
   ZI_USER_CONFIGS: >
     [
-      {"name":"au","appSecretName":"zi-app-secret-au","credentialsSecretName":"zi-credentials-au","deploymentNames":["data-scraper-au","data-scraper-au-desc","data-scraper-germany"]},
-      {"name":"ritest","appSecretName":"zi-app-secret-ritest","credentialsSecretName":"zi-credentials-ritest","deploymentNames":["data-scraper-ritest","data-scraper-ritest-desc","data-scraper-ritest-new"]},
-      {"name":"support","appSecretName":"zi-app-secret-support","credentialsSecretName":"zi-credentials-support","deploymentNames":["data-scraper-shailja","data-scraper-shailja-desc","data-scraper-shailja-new"]}
+      {"name":"au","appSecretName":"zi-app-secret-au","credentialsSecretName":"zi-credentials-au","deploymentNames":["data-scraper-au","data-scraper-au-desc"]},
+      {"name":"ritest","appSecretName":"zi-app-secret-ritest","credentialsSecretName":"zi-credentials-ritest","deploymentNames":["data-scraper-ritest","data-scraper-ritest-desc"]},
+      {"name":"support","appSecretName":"zi-app-secret-support","credentialsSecretName":"zi-credentials-support","deploymentNames":["data-scraper-shailja","data-scraper-shailja-desc"]}
     ]
 ---
 # 5. CronJob — runs every day at 5:00 AM
