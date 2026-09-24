@@ -1,0 +1,50 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: infiniq-server
+  namespace: infiniq
+  labels:
+    app: infiniq-server
+spec:
+  replicas: 3
+  progressDeadlineSeconds: 600
+  revisionHistoryLimit: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: infiniq-server
+  template:
+    metadata:
+      labels:
+        app: infiniq-server
+    spec:
+      initContainers:
+        - name: migrate
+          image: 192.168.1.11:5000/infiniq-server:latest
+          workingDir: /app/packages/db
+          command: ["bun", "src/migrate.ts"]
+          envFrom:
+            - secretRef:
+                name: infiniq-env
+      containers:
+        - name: infiniq-server
+          image: 192.168.1.11:5000/infiniq-server:latest
+          resources:
+            requests:
+              memory: "128Mi"
+            limits:
+              memory: "512Mi"
+          envFrom:
+            - secretRef:
+                name: infiniq-env
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: CORS_ORIGIN
+              value: "https://infiniq.isandeshsol.com"
+            - name: LOKI_HOST
+              value: "http://loki.monitoring.svc.cluster.local:3100"
+          ports:
+            - containerPort: 3000

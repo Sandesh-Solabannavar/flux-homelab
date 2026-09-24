@@ -1,0 +1,32 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: infiniq-web
+  namespace: infiniq
+  labels:
+    app: infiniq-web
+spec:
+  replicas: 3
+  progressDeadlineSeconds: 600
+  revisionHistoryLimit: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: infiniq-web
+  template:
+    metadata:
+      labels:
+        app: infiniq-web
+    spec:
+      containers:
+        - name: infiniq-web
+          image: 192.168.1.11:5000/infiniq-web:latest
+          resources:
+            requests:
+              memory: "128Mi"
+            limits:
+              memory: "256Mi"
+          ports:
+            - containerPort: 80

@@ -1,0 +1,29 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: infiniq-db
+  namespace: infiniq
+spec:
+  description: Postgres cluster for Infiniq
+  imageName: quay.io/enterprisedb/postgresql:17.7
+  instances: 1
+
+  inheritedMetadata:
+    labels:
+      app: infiniq-database
+      policy-type: "database"
+
+  storage:
+    storageClass: local-path
+    size: 5Gi
+
+  resources:
+    requests:
+      memory: 200Mi
+
+  bootstrap:
+    initdb:
+      database: infiniq
+      owner: infiniq
+      secret:
+        name: infiniq-db-secret
