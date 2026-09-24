@@ -11,7 +11,10 @@ spec:
   progressDeadlineSeconds: 600
   revisionHistoryLimit: 2
   strategy:
-    type: Recreate
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
   selector:
     matchLabels:
       app: infiniq-server
@@ -22,7 +25,7 @@ spec:
     spec:
       initContainers:
         - name: migrate
-          image: 192.168.1.11:5000/infiniq-server:latest
+          image: 192.168.1.11:5000/infiniq-server@sha256:b62d4a665be7a3724d4eea4bc52062cfac7253a050678af235771f8fa162feef
           workingDir: /app/packages/db
           command: ["bun", "src/migrate.ts"]
           envFrom:
@@ -30,7 +33,7 @@ spec:
                 name: infiniq-env
       containers:
         - name: infiniq-server
-          image: 192.168.1.11:5000/infiniq-server:latest
+          image: 192.168.1.11:5000/infiniq-server@sha256:b62d4a665be7a3724d4eea4bc52062cfac7253a050678af235771f8fa162feef
           resources:
             requests:
               memory: "128Mi"
