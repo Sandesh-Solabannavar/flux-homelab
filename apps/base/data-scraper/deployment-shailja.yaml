@@ -23,7 +23,7 @@ spec:
             - containerPort: 3000
           env:
             - name: COUNTRY
-              value: BR
+              value: NZ
             - name: METHOD
               value: main
             - name: ORDER
@@ -76,7 +76,7 @@ spec:
             - containerPort: 3000
           env:
             - name: COUNTRY
-              value: BR
+              value: NZ
             - name: METHOD
               value: main
             - name: ORDER
