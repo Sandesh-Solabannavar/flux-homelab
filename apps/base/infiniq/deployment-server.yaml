@@ -25,7 +25,7 @@ spec:
     spec:
       initContainers:
         - name: migrate
-          image: 192.168.1.11:5000/infiniq-server@sha256:b62d4a665be7a3724d4eea4bc52062cfac7253a050678af235771f8fa162feef
+          image: 192.168.1.11:5000/infiniq-web:latest
           workingDir: /app/packages/db
           command: ["bun", "src/migrate.ts"]
           envFrom:
@@ -33,7 +33,7 @@ spec:
                 name: infiniq-env
       containers:
         - name: infiniq-server
-          image: 192.168.1.11:5000/infiniq-server@sha256:b62d4a665be7a3724d4eea4bc52062cfac7253a050678af235771f8fa162feef
+          image: 192.168.1.11:5000/infiniq-web:latest
           resources:
             requests:
               memory: "128Mi"
