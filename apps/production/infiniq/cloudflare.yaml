@@ -13,6 +13,8 @@ spec:
       labels:
         app: cloudflared
         policy-type: "app"
+      annotations:
+        infiniq.dev/routing: web-proxy
     spec:
       containers:
         - name: cloudflared
@@ -79,10 +81,7 @@ data:
 
     ingress:
     - hostname: infiniq.isandeshsol.com
-      path: ^/(trpc|integrations|webhooks|realtime|ai|api)(/|$)
-      service: http://infiniq-server:3000
-    - hostname: infiniq.isandeshsol.com
-      service: http://infiniq-web:80  # Frontend
+      service: http://infiniq-web:80
 
     # This rule matches any traffic which didn't match a previous rule, and responds with HTTP 404.
     - service: http_status:404
