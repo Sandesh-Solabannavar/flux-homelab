@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
         - name: infiniq-web
-          image: 192.168.1.11:5000/infiniq-web:latest
+          image: 192.168.1.11:5000/infiniq-web@sha256:f13ce3b5ceba57a74c677fdcc6944798e31525a7f57e769408fb2c52233854b3
           resources:
             requests:
               memory: "128Mi"
