@@ -123,9 +123,18 @@ spec:
                   key: redis-password
             - name: REDIS_URL
               value: "redis://:$(REDIS_PASSWORD)@redis-replication.data-scraper.svc.cluster.local:6379"
+            # Self-hosted Reacher verifier: checked first, free; per-domain pacing shared via Redis.
+            - name: REACHER_PER_DOMAIN_PER_MINUTE
+              value: "3"
+            # Set to "false" to never send Reacher's unknowns to Hunter/ZeroBounce/NeverBounce.
+            - name: EMAIL_PAID_FALLBACK
+              value: "true"
           envFrom:
             - secretRef:
                 name: data-scraper-secrets
+            - secretRef:
+                name: zi-verifier
+                optional: true
           resources:
             requests:
               cpu: "100m"
