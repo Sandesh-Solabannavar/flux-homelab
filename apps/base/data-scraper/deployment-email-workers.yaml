@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: email-bootstrap-workers
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:206f9b3
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:29a0a8d
           imagePullPolicy: IfNotPresent
           command: ["node", "dist/scripts/email-pipeline.js", "--workers"]
           env:
@@ -64,7 +64,7 @@ spec:
     spec:
       containers:
         - name: email-generate-workers
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:206f9b3
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:29a0a8d
           imagePullPolicy: IfNotPresent
           command: ["node", "dist/scripts/email-pipeline.js", "--workers"]
           env:
@@ -99,7 +99,7 @@ metadata:
   labels:
     app: email-verify-workers
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: email-verify-workers
@@ -110,7 +110,7 @@ spec:
     spec:
       containers:
         - name: email-verify-workers
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:206f9b3
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:29a0a8d
           imagePullPolicy: IfNotPresent
           command: ["node", "dist/scripts/email-pipeline.js", "--workers"]
           env:
