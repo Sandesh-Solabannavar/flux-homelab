@@ -17,7 +17,7 @@ spec:
         spec:
           containers:
             - name: email-audit
-              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:4d34907
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:0a573d0
               imagePullPolicy: IfNotPresent
               command:
                 ["node", "dist/scripts/email-pipeline.js", "--phase=audit"]
@@ -60,7 +60,7 @@ spec:
         spec:
           containers:
             - name: email-pipeline-direct
-              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:4d34907
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:0a573d0
               imagePullPolicy: IfNotPresent
               command:
                 [
@@ -110,7 +110,7 @@ spec:
         spec:
           containers:
             - name: email-pipeline-bootstrap
-              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:4d34907
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:0a573d0
               imagePullPolicy: IfNotPresent
               command:
                 [
@@ -158,7 +158,7 @@ spec:
         spec:
           containers:
             - name: email-pipeline-generate
-              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:4d34907
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:0a573d0
               imagePullPolicy: IfNotPresent
               command:
                 [

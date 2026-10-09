@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: data-scraper-ritest
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:4d34907
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:0a573d0
           imagePullPolicy: IfNotPresent # Important for using remote images
           ports:
             - containerPort: 3000
@@ -70,7 +70,7 @@ spec:
     spec:
       containers:
         - name: data-scraper-ritest-desc
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:4d34907
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:0a573d0
           imagePullPolicy: IfNotPresent # Important for using remote images
           ports:
             - containerPort: 3000
