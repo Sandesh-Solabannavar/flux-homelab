@@ -19,7 +19,7 @@ spec:
       terminationGracePeriodSeconds: 200 # longer than DOMAIN_BOOTSTRAP_JOB_TIMEOUT_MS (180s), so a stop lets running jobs finish
       containers:
         - name: email-bootstrap-workers
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:29a0a8d
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:ede7b72
           imagePullPolicy: IfNotPresent
           command: ["node", "dist/scripts/email-pipeline.js", "--workers"]
           env:
@@ -66,7 +66,7 @@ spec:
       terminationGracePeriodSeconds: 150 # longer than EMAIL_GENERATE_JOB_TIMEOUT_MS (120s), so a stop lets running jobs finish
       containers:
         - name: email-generate-workers
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:29a0a8d
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:ede7b72
           imagePullPolicy: IfNotPresent
           command: ["node", "dist/scripts/email-pipeline.js", "--workers"]
           env:
@@ -113,7 +113,7 @@ spec:
       terminationGracePeriodSeconds: 150 # longer than EMAIL_VERIFY_JOB_TIMEOUT_MS (120s), so a stop lets running jobs finish
       containers:
         - name: email-verify-workers
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:29a0a8d
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:ede7b72
           imagePullPolicy: IfNotPresent
           command: ["node", "dist/scripts/email-pipeline.js", "--workers"]
           env:
