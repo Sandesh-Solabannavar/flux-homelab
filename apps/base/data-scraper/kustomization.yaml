@@ -4,9 +4,9 @@ namespace: data-scraper
 resources:
   - namespace.yaml
   - token-refresher.yaml
-  # - deployment-sandesh.yaml
-  # - deployment-ritest.yaml
-  # - deployment-shailja.yaml
+  - deployment-sandesh.yaml
+  - deployment-ritest.yaml
+  - deployment-shailja.yaml
   - deployment-dashboard.yaml
   - redis.yaml
   - deployment-email-workers.yaml
