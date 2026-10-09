@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: data-scraper-dashboard
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:ede7b72
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:4d34907
           imagePullPolicy: IfNotPresent # Important for using remote images
           ports:
             - name: http
@@ -70,7 +70,8 @@ metadata:
   name: dashboard-snapshot
   namespace: data-scraper
 spec:
-  schedule: "0 6 * * *" # daily at 6am
+  schedule: "0 6 * * *" # daily at 06:00 IST
+  timeZone: "Asia/Kolkata"
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 3
   successfulJobsHistoryLimit: 3
@@ -83,7 +84,7 @@ spec:
             - name: ghcr-login-secret
           containers:
             - name: snapshot
-              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:ede7b72
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:4d34907
               command: ["node", "dist/scripts/dashboard-snapshot.js"]
               env:
                 - name: REDIS_PASSWORD

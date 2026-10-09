@@ -81,7 +81,7 @@ stringData:
       {"name":"support","appSecretName":"zi-app-secret-support","credentialsSecretName":"zi-credentials-support","deploymentNames":["data-scraper-shailja","data-scraper-shailja-desc"]}
     ]
 ---
-# 5. CronJob — runs every day at 5:00 AM
+# 5. CronJob — runs every day at 5:00 AM IST
 #    Schedule: "0 5 * * *"  → runs at minute 0, hour 5
 #    This ensures the token is refreshed well before the 24-hour expiry.
 apiVersion: batch/v1
@@ -91,6 +91,7 @@ metadata:
   namespace: data-scraper
 spec:
   schedule: "0 5 * * *"
+  timeZone: "Asia/Kolkata"
   concurrencyPolicy: Forbid # don't overlap if a job is still running
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
@@ -106,7 +107,7 @@ spec:
           containers:
             - name: token-refresher
               # Reuses the same scraper image — no extra build needed
-              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:ede7b72
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:4d34907
               imagePullPolicy: Always
               # Override the default CMD to run the refresh script
               command: ["node", "dist/scripts/refresh-zi-token.js"]

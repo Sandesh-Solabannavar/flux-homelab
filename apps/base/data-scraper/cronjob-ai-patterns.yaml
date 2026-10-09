@@ -1,0 +1,118 @@
+# AI email-pattern guesses via Codex on a ChatGPT plan (AI_PATTERN_PROVIDER=codex).
+# Setup and login: docs/codex-ai-patterns.md in zoominfo-scraper (the one-off
+# k8s/codex-setup-pod.yaml installs the CLI and signs in). Enable in kustomization.yaml.
+---
+# Holds the Codex CLI (cli/) and its ChatGPT login (auth.json, refreshed in use).
+# local-path: bound to k3s3 straight away (the selected-node annotation), so Flux's
+# health check does not wait for a consumer and the setup pod and every run land there.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: codex-home
+  namespace: data-scraper
+  annotations:
+    volume.kubernetes.io/selected-node: k3s3
+    kustomize.toolkit.fluxcd.io/prune: disabled # removing this file must not delete the CLI and the login
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+# Phase: ai-patterns — hourly at :20 UTC, after bootstrap at :00. Asks Codex about
+# default-pattern domains in batches, within CODEX_DAILY_CALL_CAP calls per day.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: email-pipeline-ai-patterns
+  namespace: data-scraper
+spec:
+  schedule: "20 * * * *"
+  timeZone: Etc/UTC
+  suspend: true # set to false once the codex-home login is in place (docs/codex-ai-patterns.md)
+  startingDeadlineSeconds: 600 # unsuspending does not fire a catch-up run for a missed :20
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 0 # never retried at once: a retry would spend the plan again; the next hour picks up
+      activeDeadlineSeconds: 1800
+      template:
+        spec:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001 # same uid/gid as k8s/codex-setup-pod.yaml, which owns the files on codex-home
+            runAsGroup: 1001
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: email-pipeline-ai-patterns
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:4d34907
+              imagePullPolicy: IfNotPresent
+              command:
+                [
+                  "node",
+                  "dist/scripts/email-pipeline.js",
+                  "--phase=ai-patterns",
+                ]
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ["ALL"]
+              # Only what --phase=ai-patterns reads: no envFrom, so the other API keys and
+              # database URLs in data-scraper-secrets never reach this pod or Codex.
+              env:
+                - name: AI_PATTERN_PROVIDER
+                  value: codex
+                - name: CODEX_HOME
+                  value: /codex-home
+                - name: CODEX_BIN
+                  value: /codex-home/cli/bin/codex
+                - name: CODEX_DAILY_CALL_CAP
+                  value: "48" # 25 domains per call
+                - name: CODEX_CALLS_PER_RUN
+                  value: "2"
+                - name: DB_QUERY_TIMEOUT_MS
+                  value: "600000" # a slow candidate query fails within the 30 min deadline
+                - name: DB_STATEMENT_TIMEOUT_MS
+                  value: "600000"
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: data-scraper-secrets
+                      key: DATABASE_URL
+                - name: TELEGRAM_BOT_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: data-scraper-secrets
+                      key: TELEGRAM_BOT_TOKEN
+                - name: TELEGRAM_CHAT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: data-scraper-secrets
+                      key: TELEGRAM_CHAT_ID
+                - name: REDIS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: redis-secret
+                      key: redis-password
+                - name: REDIS_URL
+                  value: "redis://:$(REDIS_PASSWORD)@redis-replication.data-scraper.svc.cluster.local:6379"
+              volumeMounts:
+                - name: codex-home
+                  mountPath: /codex-home
+              resources:
+                requests:
+                  memory: "256Mi"
+                limits:
+                  memory: "1Gi"
+          restartPolicy: Never
+          volumes:
+            - name: codex-home
+              persistentVolumeClaim:
+                claimName: codex-home
+          imagePullSecrets:
+            - name: ghcr-login-secret

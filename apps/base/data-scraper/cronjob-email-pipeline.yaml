@@ -1,5 +1,5 @@
 ---
-# Phase: audit — daily at 07:00 UTC, sends Telegram summary
+# Phase: audit — daily at 07:00 IST (01:30 UTC), sends Telegram summary
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -7,6 +7,7 @@ metadata:
   namespace: data-scraper
 spec:
   schedule: "0 7 * * *"
+  timeZone: "Asia/Kolkata"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
@@ -16,7 +17,7 @@ spec:
         spec:
           containers:
             - name: email-audit
-              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:ede7b72
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:4d34907
               imagePullPolicy: IfNotPresent
               command:
                 ["node", "dist/scripts/email-pipeline.js", "--phase=audit"]
@@ -41,7 +42,7 @@ spec:
             - name: ghcr-login-secret
 
 ---
-# Phase: direct — every 6 hours, mines emails already present in ZoomInfo DB
+# Phase: direct — every 6 hours from 00:00 IST, mines emails already present in ZoomInfo DB
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -49,6 +50,7 @@ metadata:
   namespace: data-scraper
 spec:
   schedule: "0 */6 * * *"
+  timeZone: "Asia/Kolkata"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
@@ -58,7 +60,7 @@ spec:
         spec:
           containers:
             - name: email-pipeline-direct
-              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:ede7b72
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:4d34907
               imagePullPolicy: IfNotPresent
               command:
                 [
@@ -102,11 +104,13 @@ spec:
   failedJobsHistoryLimit: 3
   jobTemplate:
     spec:
+      backoffLimit: 1 # a timed-out scan is retried by the next hourly run, not 6 times in a row
+      activeDeadlineSeconds: 3000
       template:
         spec:
           containers:
             - name: email-pipeline-bootstrap
-              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:ede7b72
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:4d34907
               imagePullPolicy: IfNotPresent
               command:
                 [
@@ -136,7 +140,7 @@ spec:
             - name: ghcr-login-secret
 
 ---
-# Phase: generate — every 12 hours, enqueues email generation for persons with no email
+# Phase: generate — 00:00 and 12:00 IST, enqueues email generation for persons with no email
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -144,6 +148,7 @@ metadata:
   namespace: data-scraper
 spec:
   schedule: "0 */12 * * *"
+  timeZone: "Asia/Kolkata"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
@@ -153,7 +158,7 @@ spec:
         spec:
           containers:
             - name: email-pipeline-generate
-              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:ede7b72
+              image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:4d34907
               imagePullPolicy: IfNotPresent
               command:
                 [

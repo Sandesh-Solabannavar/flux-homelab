@@ -19,12 +19,14 @@ spec:
       terminationGracePeriodSeconds: 200 # longer than DOMAIN_BOOTSTRAP_JOB_TIMEOUT_MS (180s), so a stop lets running jobs finish
       containers:
         - name: email-bootstrap-workers
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:ede7b72
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:4d34907
           imagePullPolicy: IfNotPresent
           command: ["node", "dist/scripts/email-pipeline.js", "--workers"]
           env:
             - name: EMAIL_WORKER_QUEUES
               value: domain-bootstrap
+            - name: AI_PATTERN_PROVIDER
+              value: codex # AI guesses come from the ai-patterns CronJob, not inline OpenRouter
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -66,7 +68,7 @@ spec:
       terminationGracePeriodSeconds: 150 # longer than EMAIL_GENERATE_JOB_TIMEOUT_MS (120s), so a stop lets running jobs finish
       containers:
         - name: email-generate-workers
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:ede7b72
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:4d34907
           imagePullPolicy: IfNotPresent
           command: ["node", "dist/scripts/email-pipeline.js", "--workers"]
           env:
@@ -113,7 +115,7 @@ spec:
       terminationGracePeriodSeconds: 150 # longer than EMAIL_VERIFY_JOB_TIMEOUT_MS (120s), so a stop lets running jobs finish
       containers:
         - name: email-verify-workers
-          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:ede7b72
+          image: ghcr.io/sandesh-solabannavar/zoominfo-scraper:4d34907
           imagePullPolicy: IfNotPresent
           command: ["node", "dist/scripts/email-pipeline.js", "--workers"]
           env:
@@ -136,8 +138,7 @@ spec:
             - secretRef:
                 name: data-scraper-secrets
             - secretRef:
-                name: zi-verifier
-                optional: true
+                name: zi-verifier # REACHER_URL / REACHER_SECRET; required so a missing secret fails loudly
           resources:
             requests:
               cpu: "100m"
