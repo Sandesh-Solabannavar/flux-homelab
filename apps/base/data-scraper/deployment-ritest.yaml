@@ -34,6 +34,10 @@ spec:
               value: "1"
             - name: RATE_LIMIT_SHARED_TOKEN_PODS
               value: "2"
+            # ZoomInfo blocks every token for ~5 min when all scraper pods together exceed ~170 req/min.
+            # 2.5 s per pod caps 6 pods at 144/min. Keep pods x 60000 / this value under ~150.
+            - name: RATE_LIMIT_MIN_TIME
+              value: "2500"
             - name: ziaccesstoken
               valueFrom:
                 secretKeyRef:
@@ -87,6 +91,10 @@ spec:
               value: "1"
             - name: RATE_LIMIT_SHARED_TOKEN_PODS
               value: "2"
+            # ZoomInfo blocks every token for ~5 min when all scraper pods together exceed ~170 req/min.
+            # 2.5 s per pod caps 6 pods at 144/min. Keep pods x 60000 / this value under ~150.
+            - name: RATE_LIMIT_MIN_TIME
+              value: "2500"
             - name: ziaccesstoken
               valueFrom:
                 secretKeyRef:
