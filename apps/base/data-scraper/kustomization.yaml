@@ -4,11 +4,11 @@ namespace: data-scraper
 resources:
   - namespace.yaml
   - token-refresher.yaml
-  - deployment-sandesh.yaml
-  - deployment-ritest.yaml
-  - deployment-shailja.yaml
-  - deployment-dashboard.yaml
+  # - deployment-sandesh.yaml
+  # - deployment-ritest.yaml
+  # - deployment-shailja.yaml
+  # - deployment-dashboard.yaml
   - redis.yaml
-  - deployment-email-workers.yaml
-  - cronjob-email-pipeline.yaml
-  - cronjob-ai-patterns.yaml # Codex AI email patterns (codex-home + suspended CronJob). Enable only with an image that includes zoominfo-scraper PR #3; see its docs/codex-ai-patterns.md
+  # - deployment-email-workers.yaml
+  # - cronjob-email-pipeline.yaml
+  # - cronjob-ai-patterns.yaml # Codex AI email patterns (codex-home + suspended CronJob). Enable only with an image that includes zoominfo-scraper PR #3; see its docs/codex-ai-patterns.md
