@@ -1,0 +1,93 @@
+# InfotropyIQ staging API (source: github.com/infotropy-iq/infotropyiq).
+# Flux image automation rewrites both image tags; see
+# apps/production/infotropyIQ/image-automation.yaml.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: infotropyiq-server-stg
+  namespace: infotropyiq
+  labels:
+    app: infotropyiq-server-stg
+spec:
+  replicas: 2
+  progressDeadlineSeconds: 600
+  revisionHistoryLimit: 2
+  # Never drop below two ready pods: a new image that fails its migration or
+  # readiness check leaves the old pods serving.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: infotropyiq-server-stg
+  template:
+    metadata:
+      labels:
+        app: infotropyiq-server-stg
+        policy-type: "app"
+    spec:
+      imagePullSecrets:
+        - name: ghcr-pull
+      initContainers:
+        # The migrator takes a PostgreSQL advisory lock, so pods starting together are safe.
+        - name: migrate
+          image: ghcr.io/infotropy-iq/infotropyiq-server:REPLACE_WITH_BOOTSTRAP_TAG # {"$imagepolicy": "infotropyiq:infotropyiq-server"}
+          workingDir: /app/packages/db
+          command: ["bun", "src/migrate.ts"]
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: infotropyiq-stg-db-app
+                  key: uri
+          resources:
+            requests:
+              memory: "128Mi"
+            limits:
+              memory: "512Mi"
+      containers:
+        - name: server
+          image: ghcr.io/infotropy-iq/infotropyiq-server:REPLACE_WITH_BOOTSTRAP_TAG # {"$imagepolicy": "infotropyiq:infotropyiq-server"}
+          ports:
+            - name: http
+              containerPort: 3000
+          envFrom:
+            - secretRef:
+                name: infotropyiq-stg-server-env
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: infotropyiq-stg-db-app
+                  key: uri
+            - name: DATABASE_POOL_MAX
+              value: "10"
+            - name: CORS_ORIGIN
+              value: "https://stg-app.infotropyiq.com"
+            - name: MCP_PUBLIC_URL
+              value: "https://stg-api.infotropyiq.com/mcp"
+            - name: NYLAS_REDIRECT_URI
+              value: "https://stg-api.infotropyiq.com/integrations/nylas/callback"
+            - name: POLAR_ENVIRONMENT
+              value: "sandbox"
+            - name: NOTIFICATION_EMAIL_ENABLED
+              value: "true"
+            - name: CLOUDFLARE_EMAIL_FROM
+              value: "InfotropyIQ Staging <notifications@stg-mail.infotropyiq.com>"
+            - name: CLOUDFLARE_R2_BUCKET
+              value: "infotropyiq-stg-files"
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            periodSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "256Mi"
+            limits:
+              memory: "1Gi"
