@@ -74,8 +74,10 @@ spec:
               value: "https://stg-api.infotropyiq.com/integrations/nylas/callback"
             - name: POLAR_ENVIRONMENT
               value: "sandbox"
+            # Email is deferred until the Cloudflare account has Workers Paid
+            # (Email Sending needs it); see the app repo's docs/deployment/staging.md.
             - name: NOTIFICATION_EMAIL_ENABLED
-              value: "true"
+              value: "false"
             - name: CLOUDFLARE_EMAIL_FROM
               value: "InfotropyIQ Staging <notifications@stg-mail.infotropyiq.com>"
             - name: CLOUDFLARE_R2_BUCKET
