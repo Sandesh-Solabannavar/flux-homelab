@@ -4,3 +4,5 @@ namespace: infotropyiq
 resources:
   - ../../base/infotropyIQ
   - secrets.yaml
+  - database.yaml
+  - scheduled-backup.yaml

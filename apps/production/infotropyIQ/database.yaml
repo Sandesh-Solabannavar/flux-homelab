@@ -1,0 +1,61 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: infotropyiq-stg-db
+  namespace: infotropyiq
+spec:
+  description: PostgreSQL for InfotropyIQ staging
+  # PostgreSQL 18 matches the app's CI. The "system" flavor ships the Barman
+  # Cloud tools the in-tree backup below needs; quay.io/enterprisedb has no 18.
+  imageName: ghcr.io/cloudnative-pg/postgresql:18-system-trixie
+  # One instance: the nodes' CPU requests are saturated (see ahey-chat).
+  # Continuous WAL archiving to R2 plus daily base backups give 30-day PITR.
+  instances: 1
+
+  monitoring:
+    enablePodMonitor: true
+
+  inheritedMetadata:
+    labels:
+      app: infotropyiq-stg-database
+      policy-type: "database"
+
+  storage:
+    storageClass: local-path
+    size: 10Gi
+
+  resources:
+    requests:
+      memory: 256Mi
+
+  # 2 server replicas x (pool 10 + 2 realtime publishers + 1 LISTEN) = 26,
+  # Hyperdrive origin limit <= 20, migrations, CNPG itself, headroom.
+  postgresql:
+    parameters:
+      max_connections: "100"
+
+  bootstrap:
+    initdb:
+      database: infotropyiq
+      owner: infotropyiq
+      secret:
+        name: infotropyiq-stg-db-credentials
+
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://infotropyiq-stg-db-backups/
+      endpointURL: https://REPLACE_WITH_CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com
+      s3Credentials:
+        accessKeyId:
+          name: infotropyiq-stg-r2-backup
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: infotropyiq-stg-r2-backup
+          key: ACCESS_SECRET_KEY
+      wal:
+        compression: gzip
+        maxParallel: 8
+      data:
+        compression: gzip
+        immediateCheckpoint: false
+    retentionPolicy: "30d"
