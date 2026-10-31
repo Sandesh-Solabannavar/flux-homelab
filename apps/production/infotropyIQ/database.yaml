@@ -44,7 +44,7 @@ spec:
   backup:
     barmanObjectStore:
       destinationPath: s3://infotropyiq-stg-db-backups/
-      endpointURL: https://REPLACE_WITH_CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com
+      endpointURL: https://6014a00d43509c341143e321b50c380a.r2.cloudflarestorage.com
       s3Credentials:
         accessKeyId:
           name: infotropyiq-stg-r2-backup

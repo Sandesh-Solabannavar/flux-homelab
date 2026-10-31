@@ -80,6 +80,10 @@ spec:
               value: "InfotropyIQ Staging <notifications@stg-mail.infotropyiq.com>"
             - name: CLOUDFLARE_R2_BUCKET
               value: "infotropyiq-stg-files"
+            - name: CLOUDFLARE_R2_ACCOUNT_ID
+              value: "6014a00d43509c341143e321b50c380a"
+            - name: CLOUDFLARE_EMAIL_ACCOUNT_ID
+              value: "6014a00d43509c341143e321b50c380a"
           readinessProbe:
             httpGet:
               path: /health/ready
