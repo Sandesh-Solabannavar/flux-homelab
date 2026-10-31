@@ -3,7 +3,7 @@ kind: Kustomization
 resources:
   # - podinfo
   # - nginx
-  - infotropyIQ
+  # - infotropyIQ
   - data-scraper
   # - headlamp
   - jobspy-api
