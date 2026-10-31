@@ -86,6 +86,11 @@ spec:
               value: "6014a00d43509c341143e321b50c380a"
             - name: CLOUDFLARE_EMAIL_ACCOUNT_ID
               value: "6014a00d43509c341143e321b50c380a"
+            # PostHog's ingestion host (US cloud). The project key is the Key Vault entry
+            # infotropyiq-stg-server-posthog-key (see the app repo's docs/deployment/staging.md);
+            # until it exists the server sends nothing.
+            - name: POSTHOG_HOST
+              value: "https://us.i.posthog.com"
           readinessProbe:
             httpGet:
               path: /health/ready
