@@ -1,50 +1,104 @@
----
-kind: Deployment
+# InfotropyIQ staging API (source: github.com/infotropy-iq/infotropyiq).
+# Flux image automation rewrites both image tags; see
+# apps/production/infotropyIQ/image-automation.yaml.
 apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: infotropyiq-server
+  name: infotropyiq-server-stg
   namespace: infotropyiq
   labels:
-    app: infotropyiq-server
+    app: infotropyiq-server-stg
 spec:
-  replicas: 3
+  replicas: 2
   progressDeadlineSeconds: 600
   revisionHistoryLimit: 2
+  # Never drop below two ready pods: a new image that fails its migration or
+  # readiness check leaves the old pods serving.
   strategy:
-    type: Recreate
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
-      app: infotropyiq-server
+      app: infotropyiq-server-stg
   template:
     metadata:
       labels:
-        app: infotropyiq-server
+        app: infotropyiq-server-stg
+        policy-type: "app"
     spec:
-      containers:
-        - name: infotropyiq-server
-          image: 192.168.1.11:5000/infotropyiq-server:latest
+      imagePullSecrets:
+        - name: ghcr-pull
+      initContainers:
+        # The migrator takes a PostgreSQL advisory lock, so pods starting together are safe.
+        - name: migrate
+          image: ghcr.io/infotropy-iq/infotropyiq-server:REPLACE_WITH_BOOTSTRAP_TAG # {"$imagepolicy": "infotropyiq:infotropyiq-server"}
+          workingDir: /app/packages/db
+          command: ["bun", "src/migrate.ts"]
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: infotropyiq-stg-db-app
+                  key: uri
           resources:
             requests:
               memory: "128Mi"
             limits:
               memory: "512Mi"
+      containers:
+        - name: server
+          image: ghcr.io/infotropy-iq/infotropyiq-server:REPLACE_WITH_BOOTSTRAP_TAG # {"$imagepolicy": "infotropyiq:infotropyiq-server"}
+          ports:
+            - name: http
+              containerPort: 3000
           envFrom:
             - secretRef:
-                name: infotropyiq-env
+                name: infotropyiq-stg-server-env
           env:
-            - name: BETTER_AUTH_URL
-              value: "https://stg-app.infotropyiq.com"
             - name: NODE_ENV
               value: "production"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: infotropyiq-stg-db-app
+                  key: uri
+            - name: DATABASE_POOL_MAX
+              value: "10"
             - name: CORS_ORIGIN
               value: "https://stg-app.infotropyiq.com"
-            - name: MEILISEARCH_HOST
-              value: "http://meilisearch.meilisearch.svc.cluster.local:7700"
-            - name: USE_MEILISEARCH
-              value: "true"
-            - name: JOB_SPY_API
-              value: "http://jobspy-api.jobspy.svc.cluster.local:8000"
-            - name: LOKI_HOST
-              value: "http://loki.monitoring.svc.cluster.local:3100"
-          ports:
-            - containerPort: 3000
+            - name: MCP_PUBLIC_URL
+              value: "https://stg-api.infotropyiq.com/mcp"
+            - name: NYLAS_REDIRECT_URI
+              value: "https://stg-api.infotropyiq.com/integrations/nylas/callback"
+            - name: POLAR_ENVIRONMENT
+              value: "sandbox"
+            # Email is deferred until the Cloudflare account has Workers Paid
+            # (Email Sending needs it); see the app repo's docs/deployment/staging.md.
+            - name: NOTIFICATION_EMAIL_ENABLED
+              value: "false"
+            - name: CLOUDFLARE_EMAIL_FROM
+              value: "InfotropyIQ Staging <notifications@stg-mail.infotropyiq.com>"
+            - name: CLOUDFLARE_R2_BUCKET
+              value: "infotropyiq-stg-files"
+            - name: CLOUDFLARE_R2_ACCOUNT_ID
+              value: "6014a00d43509c341143e321b50c380a"
+            - name: CLOUDFLARE_EMAIL_ACCOUNT_ID
+              value: "6014a00d43509c341143e321b50c380a"
+            # PostHog's ingestion host (US cloud). The project key is the Key Vault entry
+            # infotropyiq-stg-server-posthog-key (see the app repo's docs/deployment/staging.md);
+            # until it exists the server sends nothing.
+            - name: POSTHOG_HOST
+              value: "https://us.i.posthog.com"
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            periodSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "256Mi"
+            limits:
+              memory: "1Gi"

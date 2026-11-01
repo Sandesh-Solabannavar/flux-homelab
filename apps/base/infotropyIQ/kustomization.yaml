@@ -4,6 +4,4 @@ namespace: infotropyiq
 resources:
   - namespace.yaml
   - deployment-server.yaml
-  - deployment-web.yaml
   - service-server.yaml
-  - service-web.yaml

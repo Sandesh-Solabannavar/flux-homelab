@@ -1,0 +1,74 @@
+# The app repository's "Deploy staging" workflow pushes
+# ghcr.io/infotropy-iq/infotropyiq-server:main-<UTC yyyymmddHHMMSS>-<short sha>.
+# Flux picks the newest timestamp, rewrites the tag in
+# apps/base/infotropyIQ/deployment-server.yaml and commits it to main.
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageRepository
+metadata:
+  name: infotropyiq-server
+  namespace: infotropyiq
+spec:
+  image: ghcr.io/infotropy-iq/infotropyiq-server
+  interval: 1m0s
+  secretRef:
+    name: ghcr-pull
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: infotropyiq-server
+  namespace: infotropyiq
+spec:
+  imageRepositoryRef:
+    name: infotropyiq-server
+  filterTags:
+    pattern: '^main-(?P<ts>[0-9]{14})-[0-9a-f]{7}$'
+    extract: '$ts'
+  policy:
+    numerical:
+      order: asc
+---
+# A separate source with a write-enabled deploy key, so the cluster's own
+# flux-system key stays read-only.
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: flux-image-updates
+  namespace: infotropyiq
+spec:
+  interval: 5m0s
+  url: ssh://git@github.com/sandesh-solabannavar/flux-homelab
+  ref:
+    branch: main
+  secretRef:
+    name: flux-image-updates
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageUpdateAutomation
+metadata:
+  name: infotropyiq-server
+  namespace: infotropyiq
+spec:
+  interval: 1m0s
+  sourceRef:
+    kind: GitRepository
+    name: flux-image-updates
+  git:
+    checkout:
+      ref:
+        branch: main
+    commit:
+      author:
+        name: fluxcdbot
+        email: fluxcdbot@users.noreply.github.com
+      messageTemplate: |-
+        deploy(infotropyiq): staging server image
+
+        {{ range .Changed.Changes -}}
+        - {{ .OldValue }} -> {{ .NewValue }}
+        {{ end -}}
+    push:
+      branch: main
+  update:
+    path: ./apps/base/infotropyIQ
+    strategy: Setters
