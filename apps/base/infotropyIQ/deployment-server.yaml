@@ -76,8 +76,8 @@ spec:
               value: "sandbox"
             # Email is deferred until the Cloudflare account has Workers Paid
             # (Email Sending needs it); see the app repo's docs/deployment/staging.md.
-            - name: NOTIFICATION_EMAIL_ENABLED
-              value: "false"
+            # NOTIFICATION_EMAIL_ENABLED is left unset: it defaults to off, and images
+            # before the app repo's PR #3 reject a set value at startup.
             - name: CLOUDFLARE_EMAIL_FROM
               value: "InfotropyIQ Staging <notifications@stg-mail.infotropyiq.com>"
             - name: CLOUDFLARE_R2_BUCKET
