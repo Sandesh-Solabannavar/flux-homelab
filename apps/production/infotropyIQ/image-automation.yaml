@@ -1,7 +1,10 @@
-# The app repository's "Deploy staging" workflow pushes
-# ghcr.io/infotropy-iq/infotropyiq-server:main-<UTC yyyymmddHHMMSS>-<short sha>.
-# Flux picks the newest timestamp, rewrites the tag in
-# apps/base/infotropyIQ/deployment-server.yaml and commits it to main.
+# Staging moves only when the owner runs the app repository's manual "Deploy
+# staging" workflow: it promotes an existing main-* image (the one QA ran) by
+# adding the tag
+# ghcr.io/infotropy-iq/infotropyiq-server:stg-<UTC yyyymmddHHMMSS>-<short sha>.
+# Flux picks the newest stg-* timestamp, rewrites the tag in
+# apps/base/infotropyIQ/deployment-server.yaml and commits it to main. The
+# main-* tags that "Deploy QA" pushes on every merge never match this policy.
 apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageRepository
 metadata:
@@ -22,7 +25,7 @@ spec:
   imageRepositoryRef:
     name: infotropyiq-server
   filterTags:
-    pattern: '^main-(?P<ts>[0-9]{14})-[0-9a-f]{7}$'
+    pattern: '^stg-(?P<ts>[0-9]{14})-[0-9a-f]{7}$'
     extract: '$ts'
   policy:
     numerical:

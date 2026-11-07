@@ -1,0 +1,15 @@
+# Named exactly infotropyiq-server: the web image's nginx proxies the API paths
+# to that host name.
+apiVersion: v1
+kind: Service
+metadata:
+  name: infotropyiq-server
+  namespace: infotropyiq
+spec:
+  selector:
+    app: infotropyiq-server-qa
+  ports:
+    - name: http
+      protocol: TCP
+      port: 3000
+      targetPort: http

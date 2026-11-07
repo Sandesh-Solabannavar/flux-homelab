@@ -1,0 +1,65 @@
+# qa.infotropyiq.com is a DNS-only record for 192.168.1.81 (Traefik), so QA is
+# reachable from the LAN only. cert-manager's ingress-shim issues the
+# certificate into infotropyiq-qa-tls from the annotation below.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: infotropyiq-qa
+  namespace: infotropyiq
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - qa.infotropyiq.com
+      secretName: infotropyiq-qa-tls
+  rules:
+    - host: qa.infotropyiq.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: infotropyiq-web-qa
+                port:
+                  number: 80
+---
+# Traefik's web entrypoint has no global redirect (the Helm values' "entrypoint"
+# key is not the chart's "entryPoint", so no redirect flag reaches Traefik), so
+# plain HTTP for this host is redirected here.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect-https
+  namespace: infotropyiq
+  annotations:
+    kubernetes.io/ingress.class: traefik-external
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: infotropyiq-qa-http
+  namespace: infotropyiq
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+    traefik.ingress.kubernetes.io/router.middlewares: infotropyiq-redirect-https@kubernetescrd
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: qa.infotropyiq.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: infotropyiq-web-qa
+                port:
+                  number: 80

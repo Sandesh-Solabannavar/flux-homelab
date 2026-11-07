@@ -1,0 +1,77 @@
+# The app repository's "Deploy QA" workflow runs on every merge to main and pushes
+#   ghcr.io/infotropy-iq/infotropyiq-server:main-<UTC yyyymmddHHMMSS>-<short sha>
+#   ghcr.io/infotropy-iq/infotropyiq-web:qa-<UTC yyyymmddHHMMSS>-<short sha>
+# Flux picks the newest timestamp of each, rewrites the tags in
+# apps/base/infotropyIQ-qa/ and commits them to main. The server ImageRepository
+# and the flux-image-updates GitRepository are staging's
+# (apps/production/infotropyIQ/image-automation.yaml).
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageRepository
+metadata:
+  name: infotropyiq-web
+  namespace: infotropyiq
+spec:
+  image: ghcr.io/infotropy-iq/infotropyiq-web
+  interval: 1m0s
+  secretRef:
+    name: ghcr-pull
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: infotropyiq-server-qa
+  namespace: infotropyiq
+spec:
+  imageRepositoryRef:
+    name: infotropyiq-server
+  filterTags:
+    pattern: '^main-(?P<ts>[0-9]{14})-[0-9a-f]{7}$'
+    extract: '$ts'
+  policy:
+    numerical:
+      order: asc
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: infotropyiq-web-qa
+  namespace: infotropyiq
+spec:
+  imageRepositoryRef:
+    name: infotropyiq-web
+  filterTags:
+    pattern: '^qa-(?P<ts>[0-9]{14})-[0-9a-f]{7}$'
+    extract: '$ts'
+  policy:
+    numerical:
+      order: asc
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageUpdateAutomation
+metadata:
+  name: infotropyiq-qa
+  namespace: infotropyiq
+spec:
+  interval: 1m0s
+  sourceRef:
+    kind: GitRepository
+    name: flux-image-updates
+  git:
+    checkout:
+      ref:
+        branch: main
+    commit:
+      author:
+        name: fluxcdbot
+        email: fluxcdbot@users.noreply.github.com
+      messageTemplate: |-
+        deploy(infotropyiq): QA images
+
+        {{ range .Changed.Changes -}}
+        - {{ .OldValue }} -> {{ .NewValue }}
+        {{ end -}}
+    push:
+      branch: main
+  update:
+    path: ./apps/base/infotropyIQ-qa
+    strategy: Setters

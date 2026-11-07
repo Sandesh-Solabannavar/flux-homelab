@@ -1,0 +1,40 @@
+# QA data is disposable: one instance, no backups. CloudNativePG generates the
+# owner password and the Secret infotropyiq-qa-db-app; its "uri" key is the
+# DATABASE_URL to put in infotropyiq-qa-server-env.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: infotropyiq-qa-db
+  namespace: infotropyiq
+spec:
+  description: PostgreSQL for InfotropyIQ QA
+  # PostgreSQL 18 matches the app's CI and staging.
+  imageName: ghcr.io/cloudnative-pg/postgresql:18-system-trixie
+  instances: 1
+
+  monitoring:
+    enablePodMonitor: true
+
+  inheritedMetadata:
+    labels:
+      app: infotropyiq-qa-database
+      policy-type: "database"
+
+  storage:
+    storageClass: local-path
+    size: 5Gi
+
+  resources:
+    requests:
+      memory: 256Mi
+
+  # 1 server replica x (pool 5 + 2 realtime publishers + 1 LISTEN) = 8,
+  # migrations, CNPG itself, headroom.
+  postgresql:
+    parameters:
+      max_connections: "50"
+
+  bootstrap:
+    initdb:
+      database: infotropyiq
+      owner: infotropyiq

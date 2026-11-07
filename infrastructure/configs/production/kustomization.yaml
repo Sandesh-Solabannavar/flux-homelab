@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - traefik
   - external-secrets
+  - cert-manager

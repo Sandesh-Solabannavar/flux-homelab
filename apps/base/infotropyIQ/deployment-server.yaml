@@ -1,4 +1,5 @@
 # InfotropyIQ staging API (source: github.com/infotropy-iq/infotropyiq).
+# The tags are stg-* tags from the app repository's manual "Deploy staging" run;
 # Flux image automation rewrites both image tags; see
 # apps/production/infotropyIQ/image-automation.yaml.
 apiVersion: apps/v1
