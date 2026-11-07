@@ -1,0 +1,49 @@
+# InfotropyIQ QA web app: nginx serving the static build, which bakes
+# https://qa.infotropyiq.com and proxies the API paths to Service infotropyiq-server.
+# The app repository's "Deploy QA" workflow pushes a qa-* tag on every merge to
+# main; Flux image automation rewrites the tag; see
+# apps/production/infotropyIQ-qa/image-automation.yaml.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: infotropyiq-web-qa
+  namespace: infotropyiq
+  labels:
+    app: infotropyiq-web-qa
+spec:
+  replicas: 1
+  progressDeadlineSeconds: 600
+  revisionHistoryLimit: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: infotropyiq-web-qa
+  template:
+    metadata:
+      labels:
+        app: infotropyiq-web-qa
+        policy-type: "app"
+    spec:
+      imagePullSecrets:
+        - name: ghcr-pull
+      containers:
+        - name: web
+          image: ghcr.io/infotropy-iq/infotropyiq-web:qa-00000000000000-0000000 # {"$imagepolicy": "infotropyiq:infotropyiq-web-qa"}
+          ports:
+            - name: http
+              containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "64Mi"
+            limits:
+              memory: "128Mi"

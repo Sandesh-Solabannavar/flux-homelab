@@ -1,0 +1,85 @@
+# InfotropyIQ QA API (source: github.com/infotropy-iq/infotropyiq).
+# The app repository's "Deploy QA" workflow pushes a main-* tag on every merge
+# to main; Flux image automation rewrites both image tags; see
+# apps/production/infotropyIQ-qa/image-automation.yaml.
+# The whole environment, DATABASE_URL included, comes from the hand-made Secret
+# infotropyiq-qa-server-env (see the app repo's docs/deployment/qa.md).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: infotropyiq-server-qa
+  namespace: infotropyiq
+  labels:
+    app: infotropyiq-server-qa
+spec:
+  replicas: 1
+  progressDeadlineSeconds: 600
+  revisionHistoryLimit: 2
+  # Keep the ready pod until the new one passes its migration and readiness check.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: infotropyiq-server-qa
+  template:
+    metadata:
+      labels:
+        app: infotropyiq-server-qa
+        policy-type: "app"
+    spec:
+      imagePullSecrets:
+        - name: ghcr-pull
+      initContainers:
+        # The migrator takes a PostgreSQL advisory lock, so pods starting together are safe.
+        - name: migrate
+          image: ghcr.io/infotropy-iq/infotropyiq-server:main-20261107165022-6287ab5 # {"$imagepolicy": "infotropyiq:infotropyiq-server-qa"}
+          workingDir: /app/packages/db
+          command: ["bun", "src/migrate.ts"]
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: infotropyiq-qa-server-env
+                  key: DATABASE_URL
+          resources:
+            requests:
+              memory: "128Mi"
+            limits:
+              memory: "512Mi"
+      containers:
+        - name: server
+          image: ghcr.io/infotropy-iq/infotropyiq-server:main-20261107165022-6287ab5 # {"$imagepolicy": "infotropyiq:infotropyiq-server-qa"}
+          ports:
+            - name: http
+              containerPort: 3000
+          envFrom:
+            - secretRef:
+                name: infotropyiq-qa-server-env
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: infotropyiq-qa-server-env
+                  key: DATABASE_URL
+            - name: DATABASE_POOL_MAX
+              value: "5"
+            - name: CORS_ORIGIN
+              value: "https://qa.infotropyiq.com"
+            - name: MCP_PUBLIC_URL
+              value: "https://qa.infotropyiq.com/mcp"
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            periodSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "256Mi"
+            limits:
+              memory: "1Gi"

@@ -1,0 +1,20 @@
+# InfotropyIQ QA deploys on every merge to the app's main branch, so it
+# reconciles on its own: a failed rollout here never marks the shared apps
+# Kustomization (every other production app) unhealthy.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infotropyiq-qa
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  retryInterval: 1m0s
+  dependsOn:
+    - name: infra-configs
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./apps/production/infotropyIQ-qa
+  prune: true
+  wait: true
+  timeout: 10m0s

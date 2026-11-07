@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: infotropyiq-web-qa
+  namespace: infotropyiq
+spec:
+  selector:
+    app: infotropyiq-web-qa
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: http
