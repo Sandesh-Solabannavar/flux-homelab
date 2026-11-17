@@ -33,6 +33,11 @@ spec:
   postgresql:
     parameters:
       max_connections: "100"
+      # Statement statistics for performance work. Setting these makes CloudNativePG
+      # load the library (one restart of the instance) and create the extension.
+      # "all" also counts statements run inside triggers and functions.
+      pg_stat_statements.max: "5000"
+      pg_stat_statements.track: all
 
   bootstrap:
     initdb:
