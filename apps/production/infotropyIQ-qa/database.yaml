@@ -38,6 +38,12 @@ spec:
       # "all" also counts statements run inside triggers and functions.
       pg_stat_statements.max: "5000"
       pg_stat_statements.track: all
+      # The volume is on SSD (local-path on k3s3, which reports its disk as
+      # non-rotational), where a random page read costs about what a
+      # sequential one does. At PostgreSQL's default of 4 the planner reads
+      # whole tables to find one member's rows. Applied by a reload: the
+      # instance does not restart.
+      random_page_cost: "1.1"
 
   bootstrap:
     initdb:
