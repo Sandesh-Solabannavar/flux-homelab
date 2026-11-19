@@ -92,6 +92,22 @@ spec:
             # until it exists the server sends nothing.
             - name: POSTHOG_HOST
               value: "https://us.i.posthog.com"
+            - name: MEDIA_FFPROBE_PATH
+              value: "/usr/bin/ffprobe"
+            - name: MEDIA_CLIP_MAX_BYTES
+              value: "100000000" # 100 MB max for media clips
+            - name: MEDIA_CLIP_MAX_SECONDS
+              value: "900" # 900 seconds max for media clips
+            - name: MEDIA_DICTATION_MAX_BYTES
+              value: "10000000" # 10 MB max for media dictations
+            - name: MEDIA_DICTATION_MAX_SECONDS
+              value: "120" # 120 seconds max for media dictations
+            - name: MEDIA_MAX_CONCURRENT
+              value: "2" # Maximum number of concurrent media operations
+            - name: MEDIA_REVIEW_HOURS
+              value: "24" # Maximum number of hours for media review
+            - name: MEDIA_TRASH_DAYS
+              value: "30" # Maximum number of days for media trash
           readinessProbe:
             httpGet:
               path: /health/ready
