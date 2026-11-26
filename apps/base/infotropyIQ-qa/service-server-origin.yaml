@@ -1,0 +1,15 @@
+# The QA API server (Bun) itself: the front door's ORIGIN_URL, and where it
+# relays live updates (/internal/realtime/publish, signed with REALTIME_RELAY_SECRET).
+apiVersion: v1
+kind: Service
+metadata:
+  name: infotropyiq-server-origin
+  namespace: infotropyiq
+spec:
+  selector:
+    app: infotropyiq-server-qa
+  ports:
+    - name: http
+      protocol: TCP
+      port: 3000
+      targetPort: http

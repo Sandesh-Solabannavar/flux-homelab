@@ -29,7 +29,8 @@ spec:
       memory: 256Mi
 
   # 1 server replica x (pool 5 + 2 realtime publishers + 1 LISTEN) = 8,
-  # migrations, CNPG itself, headroom.
+  # the front door's up to 2 per request it serves itself (wrangler dev's local
+  # Hyperdrive does not pool), migrations, CNPG itself, headroom.
   postgresql:
     parameters:
       max_connections: "50"
