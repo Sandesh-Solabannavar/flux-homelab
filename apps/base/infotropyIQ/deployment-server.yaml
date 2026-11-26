@@ -71,9 +71,17 @@ spec:
               value: "https://stg-app.infotropyiq.com"
             # Live updates come from the API Worker's WorkspaceHub: the server publishes
             # its events to the Worker (signed with REALTIME_RELAY_SECRET from Key Vault)
-            # and serves no server-sent events. Rollback: remove this.
+            # and serves no server-sent events. Rollback: first turn the Worker's background
+            # jobs off (BACKGROUND_JOBS=all below, then STG_API_JOBS_ENABLED=false and Deploy
+            # staging), then remove this (the app repo's docs/deployment/staging.md).
             - name: REALTIME_HUB_URL
               value: "https://stg-api.infotropyiq.com"
+            # Only the jobs the Worker cannot run (media and Notetaker recovery, automation
+            # webhooks); the API Worker runs the rest (STG_API_JOBS_ENABLED). Needs
+            # REALTIME_HUB_URL; without it the server runs every job. Rollback: set "all"
+            # first, before the Worker's jobs are turned off.
+            - name: BACKGROUND_JOBS
+              value: "bun-only"
             - name: MCP_PUBLIC_URL
               value: "https://stg-api.infotropyiq.com/mcp"
             - name: NYLAS_REDIRECT_URI
