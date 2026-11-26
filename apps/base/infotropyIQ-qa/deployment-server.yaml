@@ -4,6 +4,9 @@
 # apps/production/infotropyIQ-qa/image-automation.yaml.
 # The whole environment, DATABASE_URL included, comes from the hand-made Secret
 # infotropyiq-qa-server-env (see the app repo's docs/deployment/qa.md).
+# The front door (deployment-front-door.yaml) reaches it at Service
+# infotropyiq-server-origin; REALTIME_RELAY_SECRET in the Secret mounts the
+# route the front door relays live updates to.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
