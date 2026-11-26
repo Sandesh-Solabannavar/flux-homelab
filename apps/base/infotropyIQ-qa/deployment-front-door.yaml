@@ -90,12 +90,19 @@ spec:
                 secretKeyRef:
                   name: infotropyiq-qa-server-env
                   key: CLERK_PUBLISHABLE_KEY
-            # Signs the live updates relayed to the server; the server reads the same key.
+            # Verifies the live updates the server publishes to the hub; the server signs
+            # them with the same key.
             - name: REALTIME_RELAY_SECRET
               valueFrom:
                 secretKeyRef:
                   name: infotropyiq-qa-server-env
                   key: REALTIME_RELAY_SECRET
+            # Signs and verifies the 60 s tickets browsers open the live-update socket with.
+            - name: REALTIME_TICKET_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: infotropyiq-qa-server-env
+                  key: REALTIME_TICKET_SECRET
             # Files go over R2's S3 API with QA's bucket; without these the Worker's file
             # procedures are off, as the server's are.
             - name: CLOUDFLARE_R2_ACCOUNT_ID
