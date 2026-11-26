@@ -38,7 +38,7 @@ spec:
       initContainers:
         # The migrator takes a PostgreSQL advisory lock, so pods starting together are safe.
         - name: migrate
-          image: ghcr.io/infotropy-iq/infotropyiq-server:main-20261126095959-434ec53 # {"$imagepolicy": "infotropyiq:infotropyiq-server-qa"}
+          image: ghcr.io/infotropy-iq/infotropyiq-server:main-20261126104723-d1f8b26 # {"$imagepolicy": "infotropyiq:infotropyiq-server-qa"}
           workingDir: /app/packages/db
           command: ["bun", "src/migrate.ts"]
           env:
@@ -54,7 +54,7 @@ spec:
               memory: "512Mi"
       containers:
         - name: server
-          image: ghcr.io/infotropy-iq/infotropyiq-server:main-20261126095959-434ec53 # {"$imagepolicy": "infotropyiq:infotropyiq-server-qa"}
+          image: ghcr.io/infotropy-iq/infotropyiq-server:main-20261126104723-d1f8b26 # {"$imagepolicy": "infotropyiq:infotropyiq-server-qa"}
           ports:
             - name: http
               containerPort: 3000
