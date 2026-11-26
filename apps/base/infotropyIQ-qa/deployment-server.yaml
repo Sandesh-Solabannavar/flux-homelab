@@ -9,7 +9,11 @@
 # WorkspaceHub: with REALTIME_HUB_URL set, the server publishes its own events
 # to the front door's /internal/realtime/publish, signed with
 # REALTIME_RELAY_SECRET from the Secret, and serves no server-sent events.
-# Rollback: remove REALTIME_HUB_URL (see the app repo's docs/deployment/qa.md).
+# Background jobs: the front door runs the jobs placed on the Worker (its
+# JOBS_ENABLED); this server runs only the Bun-only ones (BACKGROUND_JOBS=bun-only,
+# which needs REALTIME_HUB_URL; without it the server runs every job).
+# Rollback: first BACKGROUND_JOBS=all here, then the front door's JOBS_ENABLED off,
+# and only then remove REALTIME_HUB_URL (see the app repo's docs/deployment/qa.md).
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -97,6 +101,11 @@ spec:
             # The front door (Service infotropyiq-server), which hosts the live-update hub.
             - name: REALTIME_HUB_URL
               value: "http://infotropyiq-server:3000"
+            # Only the jobs the Worker cannot run (media and Notetaker recovery, automation
+            # webhooks); the front door's Worker runs the rest. Set only after the front door's
+            # /health/jobs reported a finished run. Rollback: set "all" first.
+            - name: BACKGROUND_JOBS
+              value: "bun-only"
           readinessProbe:
             httpGet:
               path: /health/ready
