@@ -5,8 +5,11 @@
 # The whole environment, DATABASE_URL included, comes from the hand-made Secret
 # infotropyiq-qa-server-env (see the app repo's docs/deployment/qa.md).
 # The front door (deployment-front-door.yaml) reaches it at Service
-# infotropyiq-server-origin; REALTIME_RELAY_SECRET in the Secret mounts the
-# route the front door relays live updates to.
+# infotropyiq-server-origin. Live updates come from the front door's
+# WorkspaceHub: with REALTIME_HUB_URL set, the server publishes its own events
+# to the front door's /internal/realtime/publish, signed with
+# REALTIME_RELAY_SECRET from the Secret, and serves no server-sent events.
+# Rollback: remove REALTIME_HUB_URL (see the app repo's docs/deployment/qa.md).
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -91,6 +94,9 @@ spec:
               value: "24" # Maximum number of hours for media review
             - name: MEDIA_TRASH_DAYS
               value: "30" # Maximum number of days for media trash
+            # The front door (Service infotropyiq-server), which hosts the live-update hub.
+            - name: REALTIME_HUB_URL
+              value: "http://infotropyiq-server:3000"
           readinessProbe:
             httpGet:
               path: /health/ready
