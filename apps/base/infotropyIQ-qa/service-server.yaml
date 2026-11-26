@@ -1,5 +1,7 @@
 # Named exactly infotropyiq-server: the web image's nginx proxies the API paths
-# to that host name.
+# to that host name. It selects the front door, which serves what the Worker
+# serves and forwards the rest to infotropyiq-server-origin. To take the front
+# door out, select app: infotropyiq-server-qa with targetPort: http again.
 apiVersion: v1
 kind: Service
 metadata:
@@ -7,9 +9,9 @@ metadata:
   namespace: infotropyiq
 spec:
   selector:
-    app: infotropyiq-server-qa
+    app: infotropyiq-front-door-qa
   ports:
     - name: http
       protocol: TCP
       port: 3000
-      targetPort: http
+      targetPort: 8787
