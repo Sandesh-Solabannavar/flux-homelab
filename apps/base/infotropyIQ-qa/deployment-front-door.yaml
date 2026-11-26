@@ -74,6 +74,14 @@ spec:
             # ORIGIN_ACCESS_CLIENT_ID/SECRET stay unset and no Access header is sent.
             - name: ORIGIN_URL
               value: "http://infotropyiq-server-origin:3000"
+            # Runs the background jobs placed on the Worker: the JobClock Durable Object and
+            # the jobs queue under wrangler dev (requests arm the clock; wrangler dev fires no
+            # cron). An image from before the JobClock ignores it. The server keeps running
+            # every job until a second change sets its BACKGROUND_JOBS=bun-only, after this
+            # pod's /health/jobs reports a finished run (the app repo's docs/deployment/qa.md).
+            # Rollback: the server back to BACKGROUND_JOBS=all first, then remove this.
+            - name: JOBS_ENABLED
+              value: "true"
             # wrangler dev's local Hyperdrive: the Worker's own queries go to the QA database.
             - name: CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_DATABASE
               valueFrom:
