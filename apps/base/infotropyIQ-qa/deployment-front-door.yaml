@@ -45,7 +45,7 @@ spec:
         - name: front-door
           # Placeholder until "Deploy QA" publishes the first front-door image; replace
           # it with that tag before merging (Flux keeps it current afterwards).
-          image: ghcr.io/infotropy-iq/infotropyiq-front-door:main-20261126195625-8f5dbdb # {"$imagepolicy": "infotropyiq:infotropyiq-front-door-qa"}
+          image: ghcr.io/infotropy-iq/infotropyiq-front-door:main-20261126212741-197f9ae # {"$imagepolicy": "infotropyiq:infotropyiq-front-door-qa"}
           ports:
             - name: http
               containerPort: 8787
