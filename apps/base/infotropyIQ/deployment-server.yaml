@@ -10,16 +10,16 @@ metadata:
   labels:
     app: infotropyiq-server-stg
 spec:
-  replicas: 2
+  # One pod on PlanetScale (25 connections: Hyperdrive 12, this pool 5, its migrator 1;
+  # app repo docs/deployment/staging.md, "Connection budget"). Recreate, so a rollout
+  # never runs two pods and two pools at once; the server is briefly down during one.
+  # Rollback: replicas 2, the RollingUpdate strategy (maxSurge 1, maxUnavailable 0),
+  # DATABASE_POOL_MAX 10 and both DATABASE_URL references back to infotropyiq-stg-db-url.
+  replicas: 1
   progressDeadlineSeconds: 600
   revisionHistoryLimit: 2
-  # Never drop below two ready pods: a new image that fails its migration or
-  # readiness check leaves the old pods serving.
   strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
+    type: Recreate
   selector:
     matchLabels:
       app: infotropyiq-server-stg
@@ -41,7 +41,7 @@ spec:
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
-                  name: infotropyiq-stg-db-url
+                  name: infotropyiq-stg-db-url-planetscale
                   key: uri
           resources:
             requests:
@@ -63,10 +63,10 @@ spec:
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
-                  name: infotropyiq-stg-db-url
+                  name: infotropyiq-stg-db-url-planetscale
                   key: uri
             - name: DATABASE_POOL_MAX
-              value: "10"
+              value: "5"
             - name: CORS_ORIGIN
               value: "https://stg-app.infotropyiq.com"
             # Live updates come from the API Worker's WorkspaceHub: the server publishes
