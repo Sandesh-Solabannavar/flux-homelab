@@ -97,16 +97,9 @@ spec:
             # Clips and transcription against the media service (deployment-media.yaml).
             - name: MEDIA_URL
               value: "http://infotropyiq-media:8080"
-            - name: MEDIA_ON_WORKER
-              value: "true"
             # The JobClock Durable Object and the jobs queue run the background jobs;
             # the CronJob below fires the scheduled handler once a minute.
             - name: JOBS_ENABLED
-              value: "true"
-            # The Worker sends automation webhooks (the only runner now). The egress
-            # policy (networkpolicy-front-door-egress.yaml) keeps them off private
-            # networks. App images after sub-project 8's Task 8 ignore this key.
-            - name: AUTOMATION_WEBHOOKS_ON_WORKER
               value: "true"
             - name: FRONT_DOOR_PERSIST_DIR
               value: "/data"
