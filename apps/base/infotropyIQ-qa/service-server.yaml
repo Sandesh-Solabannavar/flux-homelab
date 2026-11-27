@@ -1,7 +1,6 @@
 # Named exactly infotropyiq-server: the web image's nginx proxies the API paths
-# to that host name. It selects the front door, which serves what the Worker
-# serves and forwards the rest to infotropyiq-server-origin. To take the front
-# door out, select app: infotropyiq-server-qa with targetPort: http again.
+# to that host name. It selects the API Worker (statefulset-front-door.yaml), which
+# serves every route; nothing is forwarded to the Bun server any more.
 apiVersion: v1
 kind: Service
 metadata:

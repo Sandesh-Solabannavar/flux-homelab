@@ -1,0 +1,181 @@
+# InfotropyIQ QA API (source: github.com/infotropy-iq/infotropyiq): the API Worker
+# (apps/server/src/worker.ts) under `wrangler dev` (Miniflare + workerd), as staging
+# runs it on Cloudflare. Service infotropyiq-server (the web image's nginx upstream,
+# service-server.yaml) selects it. See the app repo's docs/deployment/qa.md.
+#
+# One replica with a volume: the Durable Objects (WorkspaceHub replay state, JobClock
+# schedule) persist under /data (FRONT_DOOR_PERSIST_DIR → wrangler dev --persist-to)
+# and survive restarts. A StatefulSet never runs two copies on that state; an update
+# stops the old pod before the new one starts, so QA's API is down while wrangler
+# bundles (about a minute).
+#
+# Migrations run first, from the infotropyiq-migrate image. The whole Secret
+# infotropyiq-qa-server-env is in the environment; the image's entry script passes
+# the Worker only the keys apps/server/.env.schema declares, never DATABASE_URL.
+# Deploy QA pushes a main-* tag of each image on every merge to main; Flux image
+# automation rewrites the tags (apps/production/infotropyIQ-qa/image-automation.yaml).
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: infotropyiq-front-door-qa
+  namespace: infotropyiq
+  labels:
+    app: infotropyiq-front-door-qa
+spec:
+  replicas: 1
+  serviceName: infotropyiq-server
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: infotropyiq-front-door-qa
+  template:
+    metadata:
+      labels:
+        app: infotropyiq-front-door-qa
+        policy-type: "app"
+    spec:
+      imagePullSecrets:
+        - name: ghcr-pull
+      # The image runs as node (1000); the volume is made writable for it.
+      securityContext:
+        fsGroup: 1000
+      # Let wrangler stop workerd and flush Durable Object storage.
+      terminationGracePeriodSeconds: 30
+      initContainers:
+        # The migrator takes a PostgreSQL advisory lock; it is safe beside the old
+        # server's init container while both exist.
+        - name: migrate
+          image: ghcr.io/infotropy-iq/infotropyiq-migrate:main-20261127085927-364bbad # {"$imagepolicy": "infotropyiq:infotropyiq-migrate-qa"}
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: infotropyiq-qa-server-env
+                  key: DATABASE_URL
+          resources:
+            requests:
+              memory: "128Mi"
+            limits:
+              memory: "512Mi"
+      containers:
+        - name: front-door
+          image: ghcr.io/infotropy-iq/infotropyiq-front-door:main-20261127085927-364bbad # {"$imagepolicy": "infotropyiq:infotropyiq-front-door-qa"}
+          ports:
+            - name: http
+              containerPort: 8787
+          envFrom:
+            - secretRef:
+                name: infotropyiq-qa-server-env
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: CORS_ORIGIN
+              value: "https://qa.infotropyiq.com"
+            - name: MCP_PUBLIC_URL
+              value: "https://qa.infotropyiq.com/mcp"
+            - name: MEDIA_CLIP_MAX_BYTES
+              value: "100000000"
+            - name: MEDIA_CLIP_MAX_SECONDS
+              value: "900"
+            - name: MEDIA_DICTATION_MAX_BYTES
+              value: "10000000"
+            - name: MEDIA_DICTATION_MAX_SECONDS
+              value: "120"
+            - name: MEDIA_MAX_CONCURRENT
+              value: "2"
+            - name: MEDIA_REVIEW_HOURS
+              value: "24"
+            - name: MEDIA_TRASH_DAYS
+              value: "30"
+            # Clips and transcription against the media service (deployment-media.yaml).
+            - name: MEDIA_URL
+              value: "http://infotropyiq-media:8080"
+            - name: MEDIA_ON_WORKER
+              value: "true"
+            # The JobClock Durable Object and the jobs queue run the background jobs;
+            # the CronJob below fires the scheduled handler once a minute.
+            - name: JOBS_ENABLED
+              value: "true"
+            - name: FRONT_DOOR_PERSIST_DIR
+              value: "/data"
+            - name: FRONT_DOOR_TEST_SCHEDULED
+              value: "true"
+            # wrangler dev's local Hyperdrive: the Worker's queries go to the QA database.
+            - name: CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: infotropyiq-qa-server-env
+                  key: DATABASE_URL
+            # Files on QA's Garage (files-qa.yaml), path-style, at the address browsers
+            # also reach. The R2-named keys in the Secret hold Garage's key pair.
+            - name: OBJECT_STORAGE_ENDPOINT
+              value: "https://files.qa.infotropyiq.com"
+            - name: OBJECT_STORAGE_PATH_STYLE
+              value: "true"
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            periodSeconds: 5
+            failureThreshold: 3
+          # wrangler, workerd and wrangler's bundler service stay resident: about
+          # 800 MiB in use after a few dozen requests (measured locally).
+          resources:
+            requests:
+              memory: "1Gi"
+            limits:
+              memory: "2Gi"
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: local-path
+        resources:
+          requests:
+            storage: 5Gi
+---
+# wrangler dev fires no cron by itself; --test-scheduled (FRONT_DOOR_TEST_SCHEDULED)
+# serves this path, and the Worker's scheduled handler arms the JobClock and runs
+# what is due, as Cloudflare's cron trigger does on staging. Not reachable from the
+# web image's nginx, which proxies only the API paths.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: infotropyiq-front-door-scheduled-qa
+  namespace: infotropyiq
+spec:
+  schedule: "* * * * *"
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 50
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 50
+      ttlSecondsAfterFinished: 600
+      template:
+        metadata:
+          labels:
+            app: infotropyiq-front-door-scheduled-qa
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: scheduled
+              image: busybox:1.37@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec
+              command:
+                - wget
+                - -q
+                - -O-
+                - -T
+                - "30"
+                - "http://infotropyiq-server:3000/cdn-cgi/handler/scheduled?cron=*+*+*+*+*"
+              resources:
+                requests:
+                  memory: "8Mi"
+                limits:
+                  memory: "32Mi"
