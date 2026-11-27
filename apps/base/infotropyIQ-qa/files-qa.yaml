@@ -32,7 +32,7 @@ data:
     rpc_public_addr = "127.0.0.1:3901"
 
     [s3_api]
-    s3_region = "garage"
+    s3_region = "auto" # the Worker and media sign for region "auto", as for R2
     api_bind_addr = "0.0.0.0:3900"
 
     [admin]
