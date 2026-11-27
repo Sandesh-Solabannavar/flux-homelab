@@ -66,7 +66,7 @@ spec:
               memory: "512Mi"
       containers:
         - name: front-door
-          image: ghcr.io/infotropy-iq/infotropyiq-front-door:main-20261127134821-09dd987 # {"$imagepolicy": "infotropyiq:infotropyiq-front-door-qa"}
+          image: ghcr.io/infotropy-iq/infotropyiq-front-door:main-20261127141831-4600ce1 # {"$imagepolicy": "infotropyiq:infotropyiq-front-door-qa"}
           ports:
             - name: http
               containerPort: 8787
