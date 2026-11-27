@@ -1,0 +1,27 @@
+# Only the QA front door and the QA server (its media jobs, until the server is
+# removed) may connect to the media service: it
+# holds bucket-wide storage credentials, so nothing else in the namespace (staging's
+# pods included) reaches it, even with the token.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: infotropyiq-media-qa
+  namespace: infotropyiq
+spec:
+  podSelector:
+    matchLabels:
+      app: infotropyiq-media-qa
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - infotropyiq-front-door-qa
+                  - infotropyiq-server-qa
+      ports:
+        - protocol: TCP
+          port: 8080

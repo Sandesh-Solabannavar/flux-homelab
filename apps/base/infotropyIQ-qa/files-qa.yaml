@@ -1,0 +1,228 @@
+# QA's S3-compatible file store: one Garage node (dxflrs/garage v2.1.0, the same
+# digest as the app repository's docker-compose.yml) that replaces R2 for QA.
+#
+# Before this merges, the owner creates the Secret infotropyiq-qa-files in
+# namespace infotropyiq with keys GARAGE_RPC_SECRET (64 hex characters, e.g.
+# openssl rand -hex 32) and GARAGE_ADMIN_TOKEN (e.g. openssl rand -hex 32). The
+# pod waits (CreateContainerConfigError) until it exists.
+#
+# DNS: files.qa.infotropyiq.com is a DNS-only A record for 192.168.1.81 (Traefik),
+# LAN only, created separately in the Cloudflare zone.
+#
+# There is no init Job. After the pod is ready the controller runs the app
+# repository's tools/garage-init.ts once through a port-forward (layout, bucket,
+# key, CORS); the admin API is reachable only from a pod labelled
+# app: infotropyiq-files-init (networkpolicy below), and a port-forward is not
+# subject to it.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: infotropyiq-files-qa-config
+  namespace: infotropyiq
+data:
+  # rpc_secret and admin_token come from GARAGE_RPC_SECRET and GARAGE_ADMIN_TOKEN.
+  garage.toml: |
+    metadata_dir = "/var/lib/garage/meta"
+    data_dir = "/var/lib/garage/data"
+    db_engine = "lmdb"
+
+    replication_factor = 1
+
+    rpc_bind_addr = "0.0.0.0:3901"
+    rpc_public_addr = "127.0.0.1:3901"
+
+    [s3_api]
+    s3_region = "auto" # the Worker and media sign for region "auto", as for R2
+    api_bind_addr = "0.0.0.0:3900"
+
+    [admin]
+    api_bind_addr = "0.0.0.0:3903"
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: infotropyiq-files-qa
+  namespace: infotropyiq
+  labels:
+    app: infotropyiq-files-qa
+spec:
+  replicas: 1
+  serviceName: infotropyiq-files
+  selector:
+    matchLabels:
+      app: infotropyiq-files-qa
+  template:
+    metadata:
+      labels:
+        app: infotropyiq-files-qa
+        policy-type: "app"
+    spec:
+      containers:
+        - name: garage
+          image: dxflrs/garage:v2.1.0@sha256:4c9b34c113e61358466e83fd6e7d66e6d18657ede14b776eb78a93ee8da7cf6a
+          ports:
+            - name: s3
+              containerPort: 3900
+            - name: admin
+              containerPort: 3903
+          env:
+            - name: GARAGE_RPC_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: infotropyiq-qa-files
+                  key: GARAGE_RPC_SECRET
+            - name: GARAGE_ADMIN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: infotropyiq-qa-files
+                  key: GARAGE_ADMIN_TOKEN
+          volumeMounts:
+            - name: config
+              mountPath: /etc/garage.toml
+              subPath: garage.toml
+              readOnly: true
+            - name: data
+              mountPath: /var/lib/garage
+          # Compose's healthcheck. It works before the layout is applied, which
+          # the init run needs (so no HTTP /health, which is 503 until then).
+          readinessProbe:
+            exec:
+              command: ["/garage", "status"]
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 10
+          livenessProbe:
+            exec:
+              command: ["/garage", "status"]
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 6
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "128Mi"
+            limits:
+              cpu: "1"
+              memory: "512Mi"
+      volumes:
+        - name: config
+          configMap:
+            name: infotropyiq-files-qa-config
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: local-path
+        resources:
+          requests:
+            storage: 20Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: infotropyiq-files
+  namespace: infotropyiq
+spec:
+  selector:
+    app: infotropyiq-files-qa
+  ports:
+    - name: s3
+      protocol: TCP
+      port: 3900
+      targetPort: s3
+    - name: admin
+      protocol: TCP
+      port: 3903
+      targetPort: admin
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: infotropyiq-files-qa
+  namespace: infotropyiq
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - files.qa.infotropyiq.com
+      secretName: infotropyiq-files-qa-tls
+  rules:
+    - host: files.qa.infotropyiq.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: infotropyiq-files
+                port:
+                  number: 3900
+---
+# Plain HTTP is redirected with the Middleware redirect-https from ingress.yaml.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: infotropyiq-files-qa-http
+  namespace: infotropyiq
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+    traefik.ingress.kubernetes.io/router.middlewares: infotropyiq-redirect-https@kubernetescrd
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: files.qa.infotropyiq.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: infotropyiq-files
+                port:
+                  number: 3900
+---
+# The S3 API (3900) is reachable from Traefik (browser uploads and downloads
+# through files.qa.infotropyiq.com), the front door and the media service. The
+# admin API (3903) holds the layout and keys: only the one-off init pod reaches it.
+# The RPC port (3901) is not admitted at all (one node).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: infotropyiq-files-qa
+  namespace: infotropyiq
+spec:
+  podSelector:
+    matchLabels:
+      app: infotropyiq-files-qa
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+        - podSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - infotropyiq-front-door-qa
+                  - infotropyiq-media-qa
+      ports:
+        - protocol: TCP
+          port: 3900
+    - from:
+        - podSelector:
+            matchLabels:
+              app: infotropyiq-files-init
+      ports:
+        - protocol: TCP
+          port: 3903

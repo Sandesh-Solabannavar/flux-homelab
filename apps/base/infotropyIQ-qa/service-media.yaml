@@ -1,0 +1,16 @@
+# The QA media service (deployment-media.yaml): the front door's
+# MEDIA_URL, http://infotropyiq-media:8080. Cluster-internal; no
+# ingress route reaches it.
+apiVersion: v1
+kind: Service
+metadata:
+  name: infotropyiq-media
+  namespace: infotropyiq
+spec:
+  selector:
+    app: infotropyiq-media-qa
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: http

@@ -1,0 +1,107 @@
+# InfotropyIQ QA media service (source: github.com/infotropy-iq/infotropyiq,
+# apps/media): Bun with ffprobe and ffmpeg. It verifies uploaded clips and
+# dictations, makes clip thumbnails and copies Notetaker recordings into QA's
+# bucket. Staging runs the same image as a Cloudflare Container; QA runs it here,
+# reached by the front door at Service infotropyiq-media (only
+# it can connect: networkpolicy-media.yaml). See the app repo's
+# docs/deployment/qa.md ("The media service").
+# The app repository's "Deploy QA" workflow pushes a main-* tag on every merge to
+# main; Flux image automation rewrites the tag; see
+# apps/production/infotropyIQ-qa/image-automation.yaml.
+# Its environment is the token and the four storage keys from the Secret
+# infotropyiq-qa-server-env, by name, and nothing else: it holds bucket-wide
+# storage credentials and never needs the server's other settings. The "R2" key
+# names hold QA's Garage key pair (files-qa.yaml); OBJECT_STORAGE_ENDPOINT points
+# the S3 client at Garage instead of R2.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: infotropyiq-media-qa
+  namespace: infotropyiq
+  labels:
+    app: infotropyiq-media-qa
+spec:
+  replicas: 1
+  progressDeadlineSeconds: 600
+  revisionHistoryLimit: 2
+  # Keep the ready pod until the new one answers its health check.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: infotropyiq-media-qa
+  template:
+    metadata:
+      labels:
+        app: infotropyiq-media-qa
+        policy-type: "app"
+    spec:
+      imagePullSecrets:
+        - name: ghcr-pull
+      # The service finishes calls in flight for up to 30 s after SIGTERM.
+      terminationGracePeriodSeconds: 45
+      containers:
+        - name: media
+          # Newest main-* tag from the latest successful Deploy QA run (Flux keeps it
+          # current afterwards).
+          image: ghcr.io/infotropy-iq/infotropyiq-media:main-20261127054408-347927b # {"$imagepolicy": "infotropyiq:infotropyiq-media-qa"}
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            # /v1/* answers only with this bearer token; the front door and the server
+            # send it.
+            - name: MEDIA_SERVICE_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: infotropyiq-qa-server-env
+                  key: MEDIA_SERVICE_TOKEN
+            # QA's Garage bucket (files-qa.yaml), path-style, through its ingress host.
+            - name: OBJECT_STORAGE_ENDPOINT
+              value: "https://files.qa.infotropyiq.com"
+            - name: OBJECT_STORAGE_PATH_STYLE
+              value: "true"
+            # QA's bucket's S3 credentials. Without these the service starts, reports
+            # storage: false on /health and refuses media work, so media stays off.
+            - name: CLOUDFLARE_R2_ACCOUNT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: infotropyiq-qa-server-env
+                  key: CLOUDFLARE_R2_ACCOUNT_ID
+                  optional: true
+            - name: CLOUDFLARE_R2_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: infotropyiq-qa-server-env
+                  key: CLOUDFLARE_R2_BUCKET
+                  optional: true
+            - name: CLOUDFLARE_R2_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: infotropyiq-qa-server-env
+                  key: CLOUDFLARE_R2_ACCESS_KEY_ID
+                  optional: true
+            - name: CLOUDFLARE_R2_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: infotropyiq-qa-server-env
+                  key: CLOUDFLARE_R2_SECRET_ACCESS_KEY
+                  optional: true
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 5
+            failureThreshold: 3
+          # Two verifications and two thumbnails at a time, one recording transfer;
+          # ffmpeg is the peak.
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "1"
+              memory: "2Gi"
