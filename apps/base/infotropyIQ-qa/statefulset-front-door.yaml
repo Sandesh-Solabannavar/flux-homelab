@@ -52,7 +52,7 @@ spec:
       initContainers:
         # The migrator takes a PostgreSQL advisory lock.
         - name: migrate
-          image: ghcr.io/infotropy-iq/infotropyiq-migrate:main-20261127085927-364bbad # {"$imagepolicy": "infotropyiq:infotropyiq-migrate-qa"}
+          image: ghcr.io/infotropy-iq/infotropyiq-migrate:main-20261127134821-09dd987 # {"$imagepolicy": "infotropyiq:infotropyiq-migrate-qa"}
           env:
             - name: DATABASE_URL
               valueFrom:
@@ -66,7 +66,7 @@ spec:
               memory: "512Mi"
       containers:
         - name: front-door
-          image: ghcr.io/infotropy-iq/infotropyiq-front-door:main-20261127085927-364bbad # {"$imagepolicy": "infotropyiq:infotropyiq-front-door-qa"}
+          image: ghcr.io/infotropy-iq/infotropyiq-front-door:main-20261127134821-09dd987 # {"$imagepolicy": "infotropyiq:infotropyiq-front-door-qa"}
           ports:
             - name: http
               containerPort: 8787
