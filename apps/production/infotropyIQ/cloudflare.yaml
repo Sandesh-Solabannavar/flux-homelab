@@ -1,7 +1,8 @@
 # Remotely managed tunnel "infotropyiq-stg": its routes live in the Cloudflare
 # dashboard (Zero Trust > Networks > Tunnels), not here:
-#   stg-api.infotropyiq.com -> http://infotropyiq-server-stg:3000
 #   stg-db.infotropyiq.com  -> tcp://infotropyiq-stg-db-rw:5432 (Hyperdrive only, behind Access)
+# The stg-api and stg-origin routes went with the k3s server (2026-11-27); this tunnel
+# and the read-only database stay until about 2026-12-11.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
