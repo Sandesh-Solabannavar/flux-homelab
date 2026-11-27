@@ -13,4 +13,5 @@ resources:
   - deployment-media.yaml
   - service-media.yaml
   - networkpolicy-media.yaml
+  - networkpolicy-front-door-egress.yaml
   - files-qa.yaml
