@@ -1,0 +1,68 @@
+# Where QA's API Worker (statefulset-front-door.yaml) may connect. Automation
+# webhooks go to user-chosen URLs; the app refuses names resolving to private,
+# loopback or reserved addresses, and this policy is the second wall: nothing on
+# the home network or in the cluster is reachable except what the API needs.
+#   - DNS (CoreDNS), the QA database, the media service;
+#   - Traefik's pods on 8443, for QA's file store at files.qa.infotropyiq.com
+#     (the StatefulSet maps that name to Traefik's ClusterIP; see hostAliases);
+#   - the internet (Clerk, AI gateway, PostHog, webhooks), minus private,
+#     shared, link-local and loopback ranges.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: infotropyiq-front-door-egress-qa
+  namespace: infotropyiq
+spec:
+  podSelector:
+    matchLabels:
+      app: infotropyiq-front-door-qa
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    - to:
+        - podSelector:
+            matchLabels:
+              cnpg.io/cluster: infotropyiq-qa-db
+      ports:
+        - protocol: TCP
+          port: 5432
+    - to:
+        - podSelector:
+            matchLabels:
+              app: infotropyiq-media-qa
+      ports:
+        - protocol: TCP
+          port: 8080
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - protocol: TCP
+          port: 8443
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 0.0.0.0/8
+              - 10.0.0.0/8
+              - 100.64.0.0/10
+              - 127.0.0.0/8
+              - 169.254.0.0/16
+              - 172.16.0.0/12
+              - 192.168.0.0/16

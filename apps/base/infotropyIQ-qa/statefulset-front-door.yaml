@@ -41,6 +41,14 @@ spec:
         fsGroup: 1000
       # Let wrangler stop workerd and flush Durable Object storage.
       terminationGracePeriodSeconds: 30
+      # QA's file store through Traefik's ClusterIP instead of its home-network
+      # address (192.168.1.81), which the egress policy blocks
+      # (networkpolicy-front-door-egress.yaml); same name, so TLS and the S3
+      # signatures match what browsers use.
+      hostAliases:
+        - ip: "10.43.100.85"
+          hostnames:
+            - files.qa.infotropyiq.com
       initContainers:
         # The migrator takes a PostgreSQL advisory lock; it is safe beside the old
         # server's init container while both exist.
