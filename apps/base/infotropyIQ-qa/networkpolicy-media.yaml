@@ -1,5 +1,4 @@
-# Only the QA front door and the QA server (its media jobs, until the server is
-# removed) may connect to the media service: it
+# Only QA's API Worker may connect to the media service: it
 # holds bucket-wide storage credentials, so nothing else in the namespace (staging's
 # pods included) reaches it, even with the token.
 apiVersion: networking.k8s.io/v1
@@ -21,7 +20,6 @@ spec:
                 operator: In
                 values:
                   - infotropyiq-front-door-qa
-                  - infotropyiq-server-qa
       ports:
         - protocol: TCP
           port: 8080

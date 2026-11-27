@@ -3,8 +3,6 @@ kind: Kustomization
 namespace: infotropyiq
 # The namespace itself belongs to staging's Kustomization (apps/base/infotropyIQ).
 resources:
-  - deployment-server.yaml
-  - service-server-origin.yaml
   - statefulset-front-door.yaml
   - service-server.yaml
   - deployment-web.yaml
