@@ -50,8 +50,7 @@ spec:
           hostnames:
             - files.qa.infotropyiq.com
       initContainers:
-        # The migrator takes a PostgreSQL advisory lock; it is safe beside the old
-        # server's init container while both exist.
+        # The migrator takes a PostgreSQL advisory lock.
         - name: migrate
           image: ghcr.io/infotropy-iq/infotropyiq-migrate:main-20261127085927-364bbad # {"$imagepolicy": "infotropyiq:infotropyiq-migrate-qa"}
           env:
@@ -103,6 +102,11 @@ spec:
             # The JobClock Durable Object and the jobs queue run the background jobs;
             # the CronJob below fires the scheduled handler once a minute.
             - name: JOBS_ENABLED
+              value: "true"
+            # The Worker sends automation webhooks (the only runner now). The egress
+            # policy (networkpolicy-front-door-egress.yaml) keeps them off private
+            # networks. App images after sub-project 8's Task 8 ignore this key.
+            - name: AUTOMATION_WEBHOOKS_ON_WORKER
               value: "true"
             - name: FRONT_DOOR_PERSIST_DIR
               value: "/data"
