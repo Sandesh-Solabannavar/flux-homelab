@@ -173,6 +173,10 @@ spec:
                 - -O-
                 - -T
                 - "30"
+                # wrangler dev answers /cdn-cgi/ paths only for its own host name
+                # (403 "Invalid Host header" for the Service name).
+                - --header
+                - "Host: localhost"
                 - "http://infotropyiq-server:3000/cdn-cgi/handler/scheduled?cron=*+*+*+*+*"
               resources:
                 requests:
