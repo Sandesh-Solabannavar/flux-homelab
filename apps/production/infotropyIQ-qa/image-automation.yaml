@@ -3,9 +3,20 @@
 #   ghcr.io/infotropy-iq/infotropyiq-front-door:main-<UTC yyyymmddHHMMSS>-<short sha>
 #   ghcr.io/infotropy-iq/infotropyiq-web:qa-<UTC yyyymmddHHMMSS>-<short sha>
 # Flux picks the newest timestamp of each, rewrites the tags in
-# apps/base/infotropyIQ-qa/ and commits them to main. The server ImageRepository
-# and the flux-image-updates GitRepository are staging's
-# (apps/production/infotropyIQ/image-automation.yaml).
+# apps/base/infotropyIQ-qa/ and commits them to main. The flux-image-updates
+# GitRepository is in apps/production/infotropyIQ/image-automation.yaml; the server
+# ImageRepository moved here when the k3s staging server was retired (2026-11-27).
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageRepository
+metadata:
+  name: infotropyiq-server
+  namespace: infotropyiq
+spec:
+  image: ghcr.io/infotropy-iq/infotropyiq-server
+  interval: 1m0s
+  secretRef:
+    name: ghcr-pull
+---
 apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageRepository
 metadata:
