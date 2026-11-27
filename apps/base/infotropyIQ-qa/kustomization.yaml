@@ -5,7 +5,7 @@ namespace: infotropyiq
 resources:
   - deployment-server.yaml
   - service-server-origin.yaml
-  - deployment-front-door.yaml
+  - statefulset-front-door.yaml
   - service-server.yaml
   - deployment-web.yaml
   - service-web.yaml
