@@ -47,7 +47,7 @@ spec:
         - name: media
           # Newest main-* tag from the latest successful Deploy QA run (Flux keeps it
           # current afterwards).
-          image: ghcr.io/infotropy-iq/infotropyiq-media:main-20261127085928-364bbad # {"$imagepolicy": "infotropyiq:infotropyiq-media-qa"}
+          image: ghcr.io/infotropy-iq/infotropyiq-media:main-20261127134821-09dd987 # {"$imagepolicy": "infotropyiq:infotropyiq-media-qa"}
           ports:
             - name: http
               containerPort: 8080
