@@ -74,6 +74,17 @@ spec:
             # ORIGIN_ACCESS_CLIENT_ID/SECRET stay unset and no Access header is sent.
             - name: ORIGIN_URL
               value: "http://infotropyiq-server-origin:3000"
+            # Clips and transcription are the Worker's, against the media service
+            # (deployment-media.yaml); without MEDIA_ON_WORKER they are forwarded.
+            - name: MEDIA_URL
+              value: "http://infotropyiq-media:8080"
+            - name: MEDIA_ON_WORKER
+              value: "true"
+            - name: MEDIA_SERVICE_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: infotropyiq-qa-server-env
+                  key: MEDIA_SERVICE_TOKEN
             # Runs the background jobs placed on the Worker: the JobClock Durable Object and
             # the jobs queue under wrangler dev (requests arm the clock; wrangler dev fires no
             # cron). An image from before the JobClock ignores it. The server keeps running
@@ -111,8 +122,13 @@ spec:
                 secretKeyRef:
                   name: infotropyiq-qa-server-env
                   key: REALTIME_TICKET_SECRET
-            # Files go over R2's S3 API with QA's bucket; without these the Worker's file
-            # procedures are off, as the server's are.
+            # Files go over the S3 API of QA's Garage (files-qa.yaml), path-style, at the
+            # address browsers also reach (presigned uploads and downloads). The key pair
+            # in the R2-named keys is Garage's.
+            - name: OBJECT_STORAGE_ENDPOINT
+              value: "https://files.qa.infotropyiq.com"
+            - name: OBJECT_STORAGE_PATH_STYLE
+              value: "true"
             - name: CLOUDFLARE_R2_ACCOUNT_ID
               valueFrom:
                 secretKeyRef:

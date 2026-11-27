@@ -10,3 +10,7 @@ resources:
   - deployment-web.yaml
   - service-web.yaml
   - ingress.yaml
+  - deployment-media.yaml
+  - service-media.yaml
+  - networkpolicy-media.yaml
+  - files-qa.yaml

@@ -1,6 +1,7 @@
 # The app repository's "Deploy QA" workflow runs on every merge to main and pushes
 #   ghcr.io/infotropy-iq/infotropyiq-server:main-<UTC yyyymmddHHMMSS>-<short sha>
 #   ghcr.io/infotropy-iq/infotropyiq-front-door:main-<UTC yyyymmddHHMMSS>-<short sha>
+#   ghcr.io/infotropy-iq/infotropyiq-media:main-<UTC yyyymmddHHMMSS>-<short sha>
 #   ghcr.io/infotropy-iq/infotropyiq-web:qa-<UTC yyyymmddHHMMSS>-<short sha>
 # Flux picks the newest timestamp of each, rewrites the tags in
 # apps/base/infotropyIQ-qa/ and commits them to main. The flux-image-updates
@@ -40,6 +41,17 @@ spec:
     name: ghcr-pull
 ---
 apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageRepository
+metadata:
+  name: infotropyiq-media
+  namespace: infotropyiq
+spec:
+  image: ghcr.io/infotropy-iq/infotropyiq-media
+  interval: 1m0s
+  secretRef:
+    name: ghcr-pull
+---
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImagePolicy
 metadata:
   name: infotropyiq-server-qa
@@ -62,6 +74,21 @@ metadata:
 spec:
   imageRepositoryRef:
     name: infotropyiq-front-door
+  filterTags:
+    pattern: '^main-(?P<ts>[0-9]{14})-[0-9a-f]{7}$'
+    extract: '$ts'
+  policy:
+    numerical:
+      order: asc
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: infotropyiq-media-qa
+  namespace: infotropyiq
+spec:
+  imageRepositoryRef:
+    name: infotropyiq-media
   filterTags:
     pattern: '^main-(?P<ts>[0-9]{14})-[0-9a-f]{7}$'
     extract: '$ts'

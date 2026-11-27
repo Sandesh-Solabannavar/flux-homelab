@@ -84,6 +84,22 @@ spec:
               value: "https://qa.infotropyiq.com/mcp"
             - name: MEDIA_FFPROBE_PATH
               value: "/usr/bin/ffprobe"
+            # The media service (deployment-media.yaml) verifies media for this
+            # server's jobs too, instead of its own ffprobe. The token is also in
+            # envFrom; named here so a Secret without it stops the rollout.
+            - name: MEDIA_URL
+              value: "http://infotropyiq-media:8080"
+            - name: MEDIA_SERVICE_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: infotropyiq-qa-server-env
+                  key: MEDIA_SERVICE_TOKEN
+            # Files on QA's Garage (files-qa.yaml); the R2-named keys in envFrom hold
+            # Garage's key pair.
+            - name: OBJECT_STORAGE_ENDPOINT
+              value: "https://files.qa.infotropyiq.com"
+            - name: OBJECT_STORAGE_PATH_STYLE
+              value: "true"
             - name: MEDIA_CLIP_MAX_BYTES
               value: "100000000" # 100 MB max for media clips
             - name: MEDIA_CLIP_MAX_SECONDS
