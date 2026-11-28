@@ -52,7 +52,7 @@ spec:
       initContainers:
         # The migrator takes a PostgreSQL advisory lock.
         - name: migrate
-          image: ghcr.io/infotropy-iq/infotropyiq-migrate:main-20261128002429-8d18c24 # {"$imagepolicy": "infotropyiq:infotropyiq-migrate-qa"}
+          image: ghcr.io/infotropy-iq/infotropyiq-migrate:main-20261128033923-6697cdd # {"$imagepolicy": "infotropyiq:infotropyiq-migrate-qa"}
           env:
             - name: DATABASE_URL
               valueFrom:
