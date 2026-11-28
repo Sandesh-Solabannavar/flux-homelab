@@ -32,7 +32,7 @@ spec:
         - name: ghcr-pull
       containers:
         - name: web
-          image: ghcr.io/infotropy-iq/infotropyiq-web:qa-20261128055930-5e8c7d6 # {"$imagepolicy": "infotropyiq:infotropyiq-web-qa"}
+          image: ghcr.io/infotropy-iq/infotropyiq-web:qa-20261128080627-cbbbf1f # {"$imagepolicy": "infotropyiq:infotropyiq-web-qa"}
           ports:
             - name: http
               containerPort: 80
